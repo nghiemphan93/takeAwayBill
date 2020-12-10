@@ -1,0 +1,21 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" method="post">
+
+  <div>
+    <label for="username">Username</label>
+    <input id="username" type="text" formControlName="username" name="username">
+  </div>
+
+  <div>
+    <label for="password">Password</label>
+    <input id="password" type="password" formControlName="password" name="password">
+  </div>
+
+  <button class="button" type="submit">Login</button>
+  <button class="button" type="button" (click)="onLogOut()">Logout</button>
+  <button class="button" type="button" (click)="onGetData()">Get Data</button>
+</form>
+<hr>
+<button class="button" (click)="onLogOut()">Logout</button>
+
+<p *ngIf="(data$ | async)?.includes('!DOCTYPE html')">log in to get data</p>
+<p *ngIf="!(data$ | async)?.includes('!DOCTYPE html')">{{data$ | async}}</p>
