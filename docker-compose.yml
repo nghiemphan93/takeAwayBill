@@ -11,10 +11,10 @@ services:
     depends_on:
       - redis
     build: ./backend
-    command: python manage.py run -h 0.0.0.0
+    command: python manage.py run -h 0.0.0.0 --port=5005
     restart: always
     ports:
-      - 5000:5000
+      - 5005:5005
     env_file:
       - ./.env.dev
     volumes:
@@ -24,10 +24,10 @@ services:
     depends_on:
       - backend
     build: ./frontend
-    command: ng serve --host 0.0.0.0 --poll 1
+    command: ng serve --host 0.0.0.0 --poll 1 --port 4205
     restart: always
     ports:
-      - 4200:4200
+      - 4205:4205
     volumes:
     - ./frontend:/usr/src/app
 volumes:

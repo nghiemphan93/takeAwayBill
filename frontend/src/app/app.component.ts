@@ -16,7 +16,7 @@ export class AppComponent {
   });
 
   constructor(private http: HttpClient) {
-    this.data$ = this.http.get<string>('http://localhost:5000/getdatademo');
+    this.data$ = this.http.get<string>('http://localhost:5005/getdatademo');
   }
 
   onSubmit(): void {
@@ -25,7 +25,7 @@ export class AppComponent {
     const user = {username, password};
     console.log(user);
 
-    this.http.get(`http://localhost:5000/login?username=${username}&password=${password}`).subscribe(result => {
+    this.http.get(`http://localhost:5005/login?username=${username}&password=${password}`).subscribe(result => {
       if (result.toString().includes('Goldene Drachen') || result.toString().includes('Order,Date,Postcode')) {
         console.log('logged in successful');
         this.data$ = this.http.get<string>('http://localhost:5000/getdatademo');
@@ -37,7 +37,7 @@ export class AppComponent {
 
   onLogOut(): void {
     console.log('loggin out');
-    this.http.get('http://localhost:5000/logout').subscribe(result => {
+    this.http.get('http://localhost:5005/logout').subscribe(result => {
       if (result.toString().includes('Not a member yet? Join Takeaway.com')) {
         console.log('logged out successful');
       } else {
@@ -47,6 +47,6 @@ export class AppComponent {
   }
 
   onGetData(): void {
-    this.data$ = this.http.get<string>('http://localhost:5000/getdatademo');
+    this.data$ = this.http.get<string>('http://localhost:5005/getdatademo');
   }
 }
