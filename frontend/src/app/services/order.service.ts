@@ -17,12 +17,12 @@ export class OrderService {
     {createdAt: new Date(), orderCode: 'QGIPX3', city: 'Berlin', price: 23.70, paidOnline: false},
     {createdAt: new Date(), orderCode: 'IEYBDD', city: 'Hanover', price: 102.30, paidOnline: false},
     {createdAt: new Date(), orderCode: 'DWO2HT', city: 'Dresden', price: 14.25, paidOnline: true},
-    {createdAt: new Date(), orderCode: 'OA57QK', city: 'Berlin', price: 43.30, paidOnline: true},
-    {createdAt: new Date(), orderCode: '13CW71', city: 'Hanover', price: 58.60, paidOnline: true},
+    {createdAt: new Date(), orderCode: 'OA57QK', city: 'Dortmund', price: 43.30, paidOnline: true},
+    {createdAt: new Date(), orderCode: '13CW71', city: 'Leipzig', price: 58.60, paidOnline: true},
     {createdAt: new Date(), orderCode: 'L2GA5F', city: 'Dresden', price: 15.10, paidOnline: true},
-    {createdAt: new Date(), orderCode: '39KWWJ', city: 'Berlin', price: 120.50, paidOnline: false},
-    {createdAt: new Date(), orderCode: 'LFZDL5', city: 'Hanover', price: 24.00, paidOnline: false},
-    {createdAt: new Date(), orderCode: '3QA1S1', city: 'Dresden', price: 4.50, paidOnline: true},
+    {createdAt: new Date(), orderCode: '39KWWJ', city: 'Halle', price: 120.50, paidOnline: false},
+    {createdAt: new Date(), orderCode: 'LFZDL5', city: 'Muenster', price: 24.00, paidOnline: false},
+    {createdAt: new Date(), orderCode: '3QA1S1', city: 'Berlin', price: 4.50, paidOnline: true},
   ];
 
   constructor(private http: HttpClient) {
@@ -39,6 +39,12 @@ export class OrderService {
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
-    return of(this.data);
+    console.log('page Index: ' + criteria?.pageIndex + '   page Size: ' + criteria?.pageSize);
+
+    // TODO: data should be filtered using parameters at Backend instead of here
+    // @ts-ignore
+    const splicedData = this.data.slice(criteria?.pageIndex, criteria.pageIndex + criteria.pageSize);
+
+    return of(splicedData);
   }
 }

@@ -83,9 +83,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
       sortColumn: this.sort?.active,
       pageIndex: this.paginator?.pageIndex,
       pageSize: this.paginator?.pageSize
-
     };
-    this.orderDataSource?.loadOrders(criteria);
+    this.orderDataSource.loadOrders(criteria);
   }
-
 }
