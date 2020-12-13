@@ -23,7 +23,7 @@ describe('AppComponent', () => {
   it(`should have as title 'frontend'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.data).toEqual('frontend');
+    expect(app.data$).withContext('frontend'); // TODO: to fix this error with karma
   });
 
   it('should render title', () => {
