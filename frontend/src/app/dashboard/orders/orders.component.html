@@ -1,3 +1,20 @@
+<!-- search area -->
+<!--<div class="search-bar">
+
+  <mat-form-field >
+    <input matInput type="search" placeholder="Order Code" #orderCodeInput>
+  </mat-form-field>
+  <mat-form-field style="flex: 0 0 10% !important;  margin-left: 24px;">
+    <input matInput type="search" placeholder="City" #cityInput>
+  </mat-form-field>
+
+  <mat-form-field style="flex: 0 0 10% !important;  margin-left: 24px;">
+    <input matInput type="search" placeholder="Amount" #priceInput>
+  </mat-form-field>
+
+</div>-->
+
+<!-- table area -->
 <mat-table [dataSource]="orderDataSource" class="mat-elevation-z8" matSort matSortActive='factoryName'
            matSortDirection="asc" matSortDisableClear>
 
@@ -44,3 +61,7 @@
   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
   <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
 </mat-table>
+
+<mat-paginator [length]="orderDataSource.orderCount" [pageSize]="initialPageSize"
+               [pageSizeOptions]="[5, 10, 25, 50, 100, 200]">
+</mat-paginator>

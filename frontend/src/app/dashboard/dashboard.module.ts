@@ -5,6 +5,8 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { OrdersComponent } from './orders/orders.component';
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatTableModule} from "@angular/material/table";
+import {MatSortModule} from "@angular/material/sort";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 
 @NgModule({
@@ -13,7 +15,9 @@ import {MatTableModule} from "@angular/material/table";
     CommonModule,
     DashboardRoutingModule,
     MatPaginatorModule,
-    MatTableModule
+    MatTableModule,
+    MatSortModule,
+    MatFormFieldModule
   ]
 })
 export class DashboardModule { }
