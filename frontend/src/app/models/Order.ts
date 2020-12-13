@@ -1,7 +1,7 @@
 export interface Order {
   createdAt: Date;
   orderCode: string;
-  city: string;
+  postcode: string;
   price: number;
   paidOnline: boolean;
 }

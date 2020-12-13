@@ -1,3 +1,7 @@
+import datetime
+import io
+
+import pandas as pd
 import redis
 import requests
 from flask import Flask, jsonify, request
@@ -17,27 +21,49 @@ def login():
     s = session.post("https://restaurants-old.takeaway.com/login",
                      data={
                          'user': username,
-                         'pass': password
+                         'pass': password,
+                         'remember_login': 'on',
+                         'language': 'en'
                      })
     if 'Goldene Drachen' in s.text or 'Order,Date,Postcode' in s.text:
-        return jsonify(s.text), 200
+        return jsonify(message='logged in successfully'), 200
     else:
-        return jsonify(s.text), 401
+        return jsonify(message='logged in unsuccessfully'), 401
 
 
 @app.route("/logout", methods=['GET'])
 @cross_origin()
 def logout():
     s = session.post("https://restaurants-old.takeaway.com/logout")
-    print(s.text)
     if 'Join Takeaway.com!' in s.text:
-        return jsonify(s.text), 200
+        return jsonify(message='logged out successfully'), 200
     else:
-        return jsonify(s.text), 500
+        return jsonify(message='logged out unsuccessfully'), 500
 
 
-@app.route("/getdatademo", methods=['GET'])
+@app.route("/initAuth", methods=['GET'])
+@cross_origin()
+def initAuth():
+    url = f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={datetime.datetime.now().date().isoformat()}'
+    s = session.get(url)
+    if 'Join Takeaway.com!' in s.text:
+        return jsonify(message='authenticated'), 401
+    else:
+        return jsonify(message='not authenticated'), 200
+
+
+@app.route("/getOrdersByDate", methods=['POST'])
 @cross_origin()
 def getDataDemo():
-    s = session.get('https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end=2020-12-12')
-    return jsonify(s.text)
+    date = request.form.get('date')
+    s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
+    if 'Order,Date,Postcode' in s.text:
+        billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
+        billsDf['Total amount'] = billsDf['Total amount'].str.replace(',', '.')
+        billsDf['Total amount'] = billsDf['Total amount'].astype(float)
+        billsDf['Paid online'] = billsDf['Paid online'].fillna('0')
+        billsDf['Date'] = pd.to_datetime(billsDf['Date'], format='%d-%m-%Y %H:%M')
+        billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
+        return jsonify(billsDf.values.tolist()), 200
+    else:
+        return jsonify(message='not authenticated'), 401

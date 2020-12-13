@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {Observable, of, Subject} from "rxjs";
+import {BehaviorSubject, Observable, of, Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  isAuth = new Subject<boolean>();
+  baseUrl = 'http://localhost:5005';
+  isAuth = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
   }
@@ -23,15 +24,34 @@ export class AuthService {
    * @param password
    *
    */
-  login(username: string, password: string): void {
-    // TODO
+  async login(username: string, password: string): Promise<void> {
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    await this.http.post(`${this.baseUrl}/login`, formData).toPromise();
+    this.isAuth.next(true);
   }
 
   /**
    * Send GET Request to Server to log user out
    * Set new value of iAuth to false and notify other components via Observable
    */
-  logout(): void {
-    // TODO
+  async logout(): Promise<void> {
+    await this.http.get(`${this.baseUrl}/logout`).toPromise();
+    this.isAuth.next(false);
+  }
+
+  /**
+   * Initialize auth status for the whole application
+   */
+  async initAuth(): Promise<void> {
+    try {
+      await this.http.get(`${this.baseUrl}/initAuth`).toPromise();
+      this.isAuth.next(true);
+    } catch (e) {
+      console.log('log in to authenticate');
+      this.isAuth.next(false);
+    }
   }
 }

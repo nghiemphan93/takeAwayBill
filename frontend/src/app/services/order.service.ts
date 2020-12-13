@@ -1,8 +1,11 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {Order} from '../models/Order';
 import {OrderCriteria} from '../models/orderCriteria';
+import {HttpClient} from "@angular/common/http";
+import {Observable, of} from "rxjs";
+import {Order} from "../models/Order";
+import {catchError} from "rxjs/operators";
+
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +37,10 @@ export class OrderService {
    * @param date: formatted as 'YYYY-MM-DD'
    */
   getOrdersByDate(date: string): Observable<Order[]> {
-    // TODO
-    return of();
+    const formData = new FormData();
+    formData.append('date', date)
+    return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData)
+      .pipe(catchError(err => of(err)));
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {

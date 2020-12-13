@@ -1,3 +1,4 @@
+
 <!-- search area -->
 <!--<div class="search-bar">
 
@@ -65,3 +66,9 @@
 <mat-paginator [length]="orderDataSource.orderCount" [pageSize]="initialPageSize"
                [pageSizeOptions]="[5, 10, 25, 50, 100, 200]">
 </mat-paginator>
+
+<p>Is authenticated = {{ isAuth$ | async }}</p>
+<button mat-raised-button color="primary" routerLink="/login">To Login</button>
+<hr/>
+<h2 *ngIf="(orders$ | async)">{{(orders$ | async)}}</h2>
+

@@ -1,21 +1,18 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" method="post">
+<form *ngIf="(isAuth$ | async) == false" [formGroup]="loginForm" (ngSubmit)="onLogin()" method="post">
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput type="text" formControlName="username" name="username">
+  </mat-form-field>
 
-  <div>
-    <label for="username">Username</label>
-    <input id="username" type="text" formControlName="username" name="username">
-  </div>
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" formControlName="password" name="password">
+  </mat-form-field>
 
-  <div>
-    <label for="password">Password</label>
-    <input id="password" type="password" formControlName="password" name="password">
-  </div>
-
-  <button class="button" type="submit">Login</button>
-  <button class="button" type="button" (click)="onLogOut()">Logout</button>
-  <button class="button" type="button" (click)="onGetData()">Get Data</button>
+  <button mat-raised-button color="primary" class="button" type="submit">Login</button>
 </form>
+<button mat-raised-button color="primary" *ngIf="(isAuth$ | async) == true" class="button" type="button" (click)="onLogOut()">Logout</button>
 <hr>
-<button class="button" (click)="onLogOut()">Logout</button>
-
-<p *ngIf="(data$ | async)?.includes('!DOCTYPE html')">log in to get data</p>
-<p *ngIf="!(data$ | async)?.includes('!DOCTYPE html')">{{data$ | async}}</p>
+<p>Is authenticated = {{ isAuth$ | async }}</p>
+<button mat-raised-button color="primary" routerLink="/dashboard">To Dashboard</button>
+<hr/>
