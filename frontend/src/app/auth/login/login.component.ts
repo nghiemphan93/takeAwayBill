@@ -23,12 +23,11 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    const username = this.loginForm.value.username;
-    const password = this.loginForm.value.password;
-    const user = {username, password};
-    console.log(user);
+    const formData = new FormData();
+    formData.append('username', this.loginForm.value.username);
+    formData.append('password', this.loginForm.value.password);
 
-    this.http.get(`http://localhost:5005/login?username=${username}&password=${password}`).subscribe(result => {
+    this.http.post('http://localhost:5005/login', formData).subscribe(result => {
       if (result.toString().includes('Goldene Drachen') || result.toString().includes('Order,Date,Postcode')) {
         console.log('logged in successful');
         this.data$ = this.http.get<string>('http://localhost:5005/getdatademo');
