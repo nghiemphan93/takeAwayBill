@@ -1,1 +1,46 @@
-<p>orders works!</p>
+<mat-table [dataSource]="orderDataSource" class="mat-elevation-z8" matSort matSortActive='factoryName'
+           matSortDirection="asc" matSortDisableClear>
+
+  <!-- date column -->
+  <ng-container matColumnDef="createdAt">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      Date
+    </mat-header-cell>
+    <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short'}} </mat-cell>
+  </ng-container>
+
+  <!-- orderCode column -->
+  <ng-container matColumnDef="orderCode">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      Order Code
+    </mat-header-cell>
+    <mat-cell mat-cell *matCellDef="let element"> {{element.orderCode}} </mat-cell>
+  </ng-container>
+
+  <!-- city column -->
+  <ng-container matColumnDef="city">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      City
+    </mat-header-cell>
+    <mat-cell mat-cell *matCellDef="let element"> {{element.city}} </mat-cell>
+  </ng-container>
+
+  <!-- price column -->
+  <ng-container matColumnDef="price">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      Amount
+    </mat-header-cell>
+    <mat-cell mat-cell *matCellDef="let element"> {{element.price}} </mat-cell>
+  </ng-container>
+
+  <!-- paidOnline column -->
+  <ng-container matColumnDef="paidOnline">
+    <mat-header-cell *matHeaderCellDef mat-sort-header>
+      Paid Online
+    </mat-header-cell>
+    <mat-cell mat-cell *matCellDef="let element"> {{element.paidOnline}} </mat-cell>
+  </ng-container>
+
+  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+</mat-table>
