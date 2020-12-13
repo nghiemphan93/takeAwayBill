@@ -9,24 +9,31 @@ cache = redis.Redis(host='redis', port=6379)
 session = requests.Session()
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=['POST'])
 @cross_origin()
 def login():
-    username = request.args.get('username')
-    password = request.args.get('password')
+    username = request.form.get('username')
+    password = request.form.get('password')
     s = session.post("https://restaurants-old.takeaway.com/login",
                      data={
                          'user': username,
                          'pass': password
                      })
-    return jsonify(s.text)
+    if 'Goldene Drachen' in s.text or 'Order,Date,Postcode' in s.text:
+        return jsonify(s.text), 200
+    else:
+        return jsonify(s.text), 401
 
 
 @app.route("/logout", methods=['GET'])
 @cross_origin()
 def logout():
     s = session.post("https://restaurants-old.takeaway.com/logout")
-    return jsonify(s.text)
+    print(s.text)
+    if 'Join Takeaway.com!' in s.text:
+        return jsonify(s.text), 200
+    else:
+        return jsonify(s.text), 500
 
 
 @app.route("/getdatademo", methods=['GET'])
