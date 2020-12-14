@@ -1,4 +1,3 @@
-
 <!-- search area -->
 <!--<div class="search-bar">
 
@@ -36,11 +35,11 @@
   </ng-container>
 
   <!-- city column -->
-  <ng-container matColumnDef="city">
+  <ng-container matColumnDef="postcode">
     <mat-header-cell *matHeaderCellDef mat-sort-header>
-      City
+      Postcode
     </mat-header-cell>
-    <mat-cell mat-cell *matCellDef="let element"> {{element.city}} </mat-cell>
+    <mat-cell mat-cell *matCellDef="let element"> {{element.postcode}} </mat-cell>
   </ng-container>
 
   <!-- price column -->
@@ -70,5 +69,11 @@
 <p>Is authenticated = {{ isAuth$ | async }}</p>
 <button mat-raised-button color="primary" routerLink="/login">To Login</button>
 <hr/>
-<h2 *ngIf="(orders$ | async)">{{(orders$ | async)}}</h2>
+
+<div *ngIf="(orders$ | async)?.length">
+  <h2 *ngFor="let order of (orders$ | async)">
+    {{ order.createdAt | date: 'short' }}  {{ order.orderCode }}  {{ order.postcode }}  {{ order.price }}  {{ order.paidOnline }}
+  </h2>
+</div>
+
 

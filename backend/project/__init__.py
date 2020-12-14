@@ -54,7 +54,7 @@ def initAuth():
 
 @app.route("/getOrdersByDate", methods=['POST'])
 @cross_origin()
-def getDataDemo():
+def getOrdersByDate():
     date = request.form.get('date')
     s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
     if 'Order,Date,Postcode' in s.text:
@@ -64,6 +64,9 @@ def getDataDemo():
         billsDf['Paid online'] = billsDf['Paid online'].fillna('0')
         billsDf['Date'] = pd.to_datetime(billsDf['Date'], format='%d-%m-%Y %H:%M')
         billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
-        return jsonify(billsDf.values.tolist()), 200
+        billsDf = billsDf.rename(
+            columns={'Date': 'createdAt', 'Order': 'orderCode', 'Postcode': 'postcode', 'Total amount': 'price',
+                     'Paid online': 'paidOnline'})
+        return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401

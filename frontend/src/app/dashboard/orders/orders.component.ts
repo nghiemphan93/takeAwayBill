@@ -3,11 +3,9 @@ import {MatPaginator} from '@angular/material/paginator';
 import {OrderDatasourceService} from '../../services/order.datasource.service';
 import {MatSort} from '@angular/material/sort';
 import {tap} from 'rxjs/operators';
-import {merge} from 'rxjs';
+import {merge, Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
-import {Component, OnInit} from '@angular/core';
 import {AuthService} from "../../services/auth.service";
-import {Observable} from "rxjs";
 import {OrderService} from "../../services/order.service";
 import {Order} from "../../models/Order";
 
@@ -20,7 +18,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   // @ts-ignore
   orderDataSource: OrderDatasourceService;
 
-  displayedColumns: string[] = ['createdAt', 'orderCode', 'city', 'price', 'paidOnline'];
+  displayedColumns: string[] = ['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline'];
   initialPageIndex = 0;
   initialPageSize = 10;
 
@@ -47,12 +45,10 @@ export class OrdersComponent implements OnInit, AfterViewInit {
         pageSize: this.initialPageSize
       }
     );
-    
+
     try {
       this.isAuth$ = this.authService.getAuth();
       this.orders$ = this.orderService.getOrdersByDate('2020-09-10');
-
-      this.orders$.subscribe(data => console.log(JSON.stringify(data)));
     } catch (e) {
       console.log(e);
     }

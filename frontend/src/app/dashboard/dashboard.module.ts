@@ -18,7 +18,7 @@ import {MatButtonModule} from "@angular/material/button";
     MatPaginatorModule,
     MatTableModule,
     MatSortModule,
-    MatFormFieldModule
+    MatFormFieldModule,
     MatButtonModule
   ]
 })

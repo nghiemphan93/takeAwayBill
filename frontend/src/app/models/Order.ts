@@ -1,6 +1,6 @@
 export interface Order {
-  createdAt: Date;
   orderCode: string;
+  createdAt: Date;
   postcode: string;
   price: number;
   paidOnline: boolean;
