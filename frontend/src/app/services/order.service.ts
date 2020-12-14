@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {OrderCriteria} from '../models/orderCriteria';
-import {HttpClient} from "@angular/common/http";
-import {Order} from "../models/Order";
-import {catchError} from "rxjs/operators";
-
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Order} from '../models/Order';
+import {catchError, map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,20 +11,7 @@ import {catchError} from "rxjs/operators";
 export class OrderService {
 
   orderCount = new BehaviorSubject<number>(0);
-  data = [
-    {createdAt: new Date(), orderCode: 'T0KTN6', postcode: 'Berlin', price: 20.50, paidOnline: true},
-    {createdAt: new Date(), orderCode: 'WXLDH5', postcode: 'Hanover', price: 74.60, paidOnline: false},
-    {createdAt: new Date(), orderCode: 'FT48CP', postcode: 'Dresden', price: 14.25, paidOnline: true},
-    {createdAt: new Date(), orderCode: 'QGIPX3', postcode: 'Berlin', price: 23.70, paidOnline: false},
-    {createdAt: new Date(), orderCode: 'IEYBDD', postcode: 'Hanover', price: 102.30, paidOnline: false},
-    {createdAt: new Date(), orderCode: 'DWO2HT', postcode: 'Dresden', price: 14.25, paidOnline: true},
-    {createdAt: new Date(), orderCode: 'OA57QK', postcode: 'Dortmund', price: 43.30, paidOnline: true},
-    {createdAt: new Date(), orderCode: '13CW71', postcode: 'Leipzig', price: 58.60, paidOnline: true},
-    {createdAt: new Date(), orderCode: 'L2GA5F', postcode: 'Dresden', price: 15.10, paidOnline: true},
-    {createdAt: new Date(), orderCode: '39KWWJ', postcode: 'Halle', price: 120.50, paidOnline: false},
-    {createdAt: new Date(), orderCode: 'LFZDL5', postcode: 'Muenster', price: 24.00, paidOnline: false},
-    {createdAt: new Date(), orderCode: '3QA1S1', postcode: 'Berlin', price: 4.50, paidOnline: true},
-  ];
+  data = [];
 
   constructor(private http: HttpClient) {
     this.orderCount.next(0);
@@ -37,7 +23,7 @@ export class OrderService {
    */
   getOrdersByDate(date: string): Observable<Order[]> {
     const formData = new FormData();
-    formData.append('date', date)
+    formData.append('date', date);
     return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData)
       .pipe(catchError(err => of(err)));
   }
@@ -45,10 +31,29 @@ export class OrderService {
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
     console.log('page Index: ' + criteria?.pageIndex + '   page Size: ' + criteria?.pageSize);
 
-    // TODO: data should be filtered using parameters at Backend instead of here
-    // @ts-ignore
-    const splicedData = this.data.slice(criteria?.pageIndex, criteria.pageIndex + criteria.pageSize);
-
-    return of(splicedData);
+    return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', {
+      params: new HttpParams()
+        .set('sortDirection', (criteria?.sortDirection || 'asc'))
+        .set('sortColumn', (criteria?.sortColumn || 'createdAt'))
+        .set('pageIndex', (criteria?.pageIndex || 0).toString())
+        .set('pageSize', (criteria?.pageSize || 10).toString())
+    });
   }
+
+  // getOrders(criteria?: OrderCriteria): Observable<Order[]> {
+  //   console.log('page Index: ' + criteria?.pageIndex + '   page Size: ' + criteria?.pageSize);
+  //
+  //   const formData = new FormData();
+  //   formData.append('date', '2020-09-10'); // TODO: the date value should be got from the Datepicker
+  //
+  //   return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData)
+  //     .pipe(
+  //       catchError(err => of(err)),
+  //       map((orders: Order[]) => {
+  //         // @ts-ignore
+  //         const result = orders.slice(criteria?.pageIndex, criteria?.pageIndex + criteria?.pageSize);
+  //         return result;
+  //       })
+  //     );
+  // }
 }

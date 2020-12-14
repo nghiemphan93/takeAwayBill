@@ -4,7 +4,7 @@ import {Order} from '../models/Order';
 import {OrderService} from './order.service';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {OrderCriteria} from '../models/orderCriteria';
-import {catchError, finalize} from "rxjs/operators";
+import {catchError, finalize} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -25,19 +25,10 @@ export class OrderDatasourceService implements DataSource<Order> {
 
   disconnect(collectionViewer: CollectionViewer): void {
     this.orderSubject.complete();
+    this.orderLoadingSubject.complete();
   }
 
   loadOrders(criteria: OrderCriteria): void {
-    /*this.orderService.getOrders(criteria)
-      .subscribe(
-        orderList => {
-          this.orderSubject.next(orderList);
-          const allCrit: OrderCriteria = Object.assign({}, criteria);
-          Object.assign(allCrit, {pageIndex: -1, pageSize: -1});
-          this.orderService.getOrders(allCrit).subscribe(
-            orders => this.orderCount = orders.length);
-        });*/
-
     this.orderService.getOrders(criteria)
       .pipe(
         catchError(() => of([])),
@@ -47,5 +38,15 @@ export class OrderDatasourceService implements DataSource<Order> {
         this.orderSubject.next(orders);
         this.orderCount = orders.length;
       });
+
+    /*this.orderService.getOrders(criteria)
+          .subscribe(
+            orderList => {
+              this.orderSubject.next(orderList);
+              const allCrit: OrderCriteria = Object.assign({}, criteria);
+              Object.assign(allCrit, {pageIndex: -1, pageSize: -1});
+              this.orderService.getOrders(allCrit).subscribe(
+                orders => this.orderCount = orders.length);
+    });*/
   }
 }

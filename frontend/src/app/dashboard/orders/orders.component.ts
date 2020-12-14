@@ -5,9 +5,9 @@ import {MatSort} from '@angular/material/sort';
 import {tap} from 'rxjs/operators';
 import {merge, Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
-import {AuthService} from "../../services/auth.service";
-import {OrderService} from "../../services/order.service";
-import {Order} from "../../models/Order";
+import {AuthService} from '../../services/auth.service';
+import {OrderService} from '../../services/order.service';
+import {Order} from '../../models/Order';
 
 @Component({
   selector: 'app-orders',
@@ -25,7 +25,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
   @ViewChild('orderCodeInput') orderCodeInput?: ElementRef;
-  @ViewChild('cityInput') cityInput?: ElementRef;
+  @ViewChild('postCodeInput') postCodeInput?: ElementRef;
   @ViewChild('priceInput') priceInput?: ElementRef;
 
   orders$ = new Observable<Order[]>();
@@ -89,7 +89,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   loadOrdersTable(): void {
     const criteria: OrderCriteria = {
       orderCode: this.orderCodeInput?.nativeElement.value,
-      city: this.cityInput?.nativeElement.value,
+      postcode: this.postCodeInput?.nativeElement.value,
       price: this.priceInput?.nativeElement.value,
       sortDirection: this.sort?.direction,
       sortColumn: this.sort?.active,
