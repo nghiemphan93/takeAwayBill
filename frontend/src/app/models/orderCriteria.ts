@@ -1,9 +1,9 @@
 export interface OrderCriteria {
-  createdAt?: string;
+  createdAt?: Date;
   orderCode?: string;
-  city?: string;
+  postcode?: string;
   price?: string;
-  paidOnline?: string;
+  paidOnline?: number;
   sortDirection?: string;
   sortColumn?: string;
   pageIndex?: number;

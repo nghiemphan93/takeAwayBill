@@ -3,5 +3,5 @@ export interface Order {
   createdAt: Date;
   postcode: string;
   price: number;
-  paidOnline: boolean;
+  paidOnline: number;
 }

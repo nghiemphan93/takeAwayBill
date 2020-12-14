@@ -5,9 +5,9 @@ import {MatSort} from '@angular/material/sort';
 import {tap} from 'rxjs/operators';
 import {merge, Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
-import {AuthService} from "../../services/auth.service";
-import {OrderService} from "../../services/order.service";
-import {Order} from "../../models/Order";
+import {AuthService} from '../../services/auth.service';
+import {OrderService} from '../../services/order.service';
+import {Order} from '../../models/Order';
 
 @Component({
   selector: 'app-orders',
@@ -25,17 +25,16 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
   @ViewChild('orderCodeInput') orderCodeInput?: ElementRef;
-  @ViewChild('cityInput') cityInput?: ElementRef;
+  @ViewChild('postCodeInput') postCodeInput?: ElementRef;
   @ViewChild('priceInput') priceInput?: ElementRef;
 
-  orders$ = new Observable<Order[]>();
   isAuth$ = new Observable<boolean>();
 
   constructor(private authService: AuthService,
               private orderService: OrderService) {
   }
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     this.orderDataSource = new OrderDatasourceService(this.orderService);
     this.orderDataSource.loadOrders(
       {
@@ -48,24 +47,12 @@ export class OrdersComponent implements OnInit, AfterViewInit {
 
     try {
       this.isAuth$ = this.authService.getAuth();
-      this.orders$ = this.orderService.getOrdersByDate('2020-09-10');
     } catch (e) {
       console.log(e);
     }
   }
 
   ngAfterViewInit(): void {
-    /* const headers = [this.createdAtInput, this.orderCodeInput, this.cityInput, this.priceInput, this.paidOnlineInput];
-     for (const header of headers) {
-       fromEvent(header?.nativeElement, 'keyup').pipe(
-         debounceTime(150),
-         distinctUntilChanged(),
-         tap(() => {
-           this.paginator.pageIndex = 0;
-           this.loadOrdersTable();
-         })).subscribe();
-     }*/
-
     // Implement Paginator
     if (this.paginator) {
       this.paginator.page
@@ -89,7 +76,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   loadOrdersTable(): void {
     const criteria: OrderCriteria = {
       orderCode: this.orderCodeInput?.nativeElement.value,
-      city: this.cityInput?.nativeElement.value,
+      postcode: this.postCodeInput?.nativeElement.value,
       price: this.priceInput?.nativeElement.value,
       sortDirection: this.sort?.direction,
       sortColumn: this.sort?.active,
