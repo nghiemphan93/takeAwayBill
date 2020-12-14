@@ -28,14 +28,13 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   @ViewChild('postCodeInput') postCodeInput?: ElementRef;
   @ViewChild('priceInput') priceInput?: ElementRef;
 
-  orders$ = new Observable<Order[]>();
   isAuth$ = new Observable<boolean>();
 
   constructor(private authService: AuthService,
               private orderService: OrderService) {
   }
 
-  async ngOnInit() {
+  async ngOnInit(): Promise<void> {
     this.orderDataSource = new OrderDatasourceService(this.orderService);
     this.orderDataSource.loadOrders(
       {
@@ -48,24 +47,12 @@ export class OrdersComponent implements OnInit, AfterViewInit {
 
     try {
       this.isAuth$ = this.authService.getAuth();
-      this.orders$ = this.orderService.getOrdersByDate('2020-09-10');
     } catch (e) {
       console.log(e);
     }
   }
 
   ngAfterViewInit(): void {
-    /* const headers = [this.createdAtInput, this.orderCodeInput, this.cityInput, this.priceInput, this.paidOnlineInput];
-     for (const header of headers) {
-       fromEvent(header?.nativeElement, 'keyup').pipe(
-         debounceTime(150),
-         distinctUntilChanged(),
-         tap(() => {
-           this.paginator.pageIndex = 0;
-           this.loadOrdersTable();
-         })).subscribe();
-     }*/
-
     // Implement Paginator
     if (this.paginator) {
       this.paginator.page

@@ -15,7 +15,7 @@
 </div>-->
 
 <!-- table area -->
-<mat-table [dataSource]="orderDataSource" class="mat-elevation-z8" matSort matSortActive='factoryName'
+<mat-table [dataSource]="orderDataSource" class="mat-elevation-z8" matSort matSortActive='createdAt'
            matSortDirection="asc" matSortDisableClear>
 
   <!-- date column -->
@@ -69,11 +69,5 @@
 <p>Is authenticated = {{ isAuth$ | async }}</p>
 <button mat-raised-button color="primary" routerLink="/login">To Login</button>
 <hr/>
-
-<!--<div *ngIf="(orders$ | async)?.length">
-  <h2 *ngFor="let order of (orders$ | async)">
-    {{ order.createdAt | date: 'short' }}  {{ order.orderCode }}  {{ order.postcode }}  {{ order.price }}  {{ order.paidOnline }}
-  </h2>
-</div>-->
 
 

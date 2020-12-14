@@ -56,10 +56,22 @@ def initAuth():
 @cross_origin()
 def getOrdersByDate():
     date = request.form.get('date')
-    sortDirection = request.args.get('sortDirection')
-    sortColumn = request.args.get('sortColumn')
-    pageIndex = int(request.args.get('pageIndex'))
-    pageSize = int(request.args.get('pageSize'))
+    sortDirection = request.form.get('sortDirection')
+    sortColumn = request.form.get('sortColumn')
+    pageIndex = request.form.get('pageIndex')
+    pageSize = request.form.get('pageSize')
+
+    if pageIndex is not None:
+        pageIndex = int(pageIndex)
+    else:
+        pageIndex = 0
+    if pageSize is not None:
+        pageSize = int(pageSize)
+    else:
+        pageSize = 10
+    if sortColumn is None:
+        sortColumn = 'createdAt'
+
     s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
     if 'Order,Date,Postcode' in s.text:
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
