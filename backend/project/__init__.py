@@ -56,6 +56,10 @@ def initAuth():
 @cross_origin()
 def getOrdersByDate():
     date = request.form.get('date')
+    sortDirection = request.args.get('sortDirection')
+    sortColumn = request.args.get('sortColumn')
+    pageIndex = int(request.args.get('pageIndex'))
+    pageSize = int(request.args.get('pageSize'))
     s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
     if 'Order,Date,Postcode' in s.text:
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
@@ -67,6 +71,8 @@ def getOrdersByDate():
         billsDf = billsDf.rename(
             columns={'Date': 'createdAt', 'Order': 'orderCode', 'Postcode': 'postcode', 'Total amount': 'price',
                      'Paid online': 'paidOnline'})
+        billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
+        billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401
