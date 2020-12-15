@@ -9,22 +9,21 @@ import {Order} from '../models/Order';
 })
 export class OrderService {
 
-  orderCount = new BehaviorSubject<number>(0);
-  data = [];
+  // orderCount = new BehaviorSubject<number>(0);
 
   constructor(private http: HttpClient) {
-    this.orderCount.next(0);
+    // this.orderCount.next(0);
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
-    console.log('page Index: ' + criteria?.pageIndex + '   page Size: ' + criteria?.pageSize);
+    // console.log('page Index: ' + criteria?.pageIndex + '   page Size: ' + criteria?.pageSize);
 
     const formData = new FormData();
-    formData.append('date', '2020-09-10');
+    formData.append('date', '2020-11-05');
     formData.append('sortDirection', criteria?.sortDirection || 'asc');
     formData.append('sortColumn', criteria?.sortColumn || 'createdAt');
-    formData.append('pageIndex', (criteria?.pageIndex || 0).toString());
-    formData.append('pageSize', (criteria?.pageSize || 10).toString());
+    // formData.append('pageIndex', (criteria?.pageIndex || 0).toString());
+    // formData.append('pageSize', (criteria?.pageSize || 15).toString());
 
     return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData);
   }

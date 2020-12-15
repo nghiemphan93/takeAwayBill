@@ -1,9 +1,7 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
-import {OrderDatasourceService} from '../../services/order.datasource.service';
 import {MatSort} from '@angular/material/sort';
-import {tap} from 'rxjs/operators';
-import {merge, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
 import {AuthService} from '../../services/auth.service';
 import {OrderService} from '../../services/order.service';
@@ -16,11 +14,16 @@ import {Order} from '../../models/Order';
 })
 export class OrdersComponent implements OnInit, AfterViewInit {
   // @ts-ignore
-  orderDataSource: OrderDatasourceService;
+  // orderDataSource: OrderDatasource;
+  loadedOrders = [];
+  loadingOrders = [];
+  start = 0;
+  limit = 15;
+  end: number = this.limit + this.start;
 
   displayedColumns: string[] = ['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline'];
   initialPageIndex = 0;
-  initialPageSize = 10;
+  initialPageSize = 15;
 
   @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -35,16 +38,27 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.orderDataSource = new OrderDatasourceService(this.orderService);
-    this.orderDataSource.loadOrders(
-      {
-        sortDirection: 'asc',
-        sortColumn: 'createdAt',
-        pageIndex: this.initialPageIndex,
-        pageSize: this.initialPageSize
-      }
-    );
-
+    // this.orderDataSource = new OrderDatasource(this.orderService);
+    // this.orderDataSource.loadOrders(
+    //   {
+    //     sortDirection: 'asc',
+    //     sortColumn: 'createdAt',
+    //     pageIndex: this.initialPageIndex,
+    //     pageSize: this.initialPageSize
+    //   }
+    // );
+    const criteria: OrderCriteria = {
+      sortDirection: 'asc',
+      sortColumn: 'createdAt',
+      // pageIndex: this.initialPageIndex,
+      // pageSize: this.initialPageSize
+    };
+    // @ts-ignore
+    this.loadedOrders = await this.orderService.getOrders(criteria).toPromise();
+    console.log(this.loadedOrders);
+    // @ts-ignore
+    this.loadingOrders = this.getTableData(this.start, this.end);
+    this.updateIndex();
     try {
       this.isAuth$ = this.authService.getAuth();
     } catch (e) {
@@ -53,16 +67,8 @@ export class OrdersComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Implement Paginator
-    if (this.paginator) {
-      this.paginator.page
-        .pipe(
-          tap(() => this.loadOrdersTable())
-        ).subscribe();
-    }
-
-    // Implement Sorting
-    if (this.sort) {
+    // TODO: Implement Sorting
+   /* if (this.sort) {
       // @ts-ignore
       this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
 
@@ -70,7 +76,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
         .pipe(
           tap(() => this.loadOrdersTable())
         ).subscribe();
-    }
+    }*/
   }
 
   loadOrdersTable(): void {
@@ -83,6 +89,39 @@ export class OrdersComponent implements OnInit, AfterViewInit {
       pageIndex: this.paginator?.pageIndex,
       pageSize: this.paginator?.pageSize
     };
-    this.orderDataSource.loadOrders(criteria);
+    // @ts-ignore
+    this.orderService.getOrders(criteria).subscribe((orders) => {
+      // @ts-ignore
+      this.loadedOrders = orders;
+    });
+  }
+
+  onTableScroll(e?: Event): void {
+    // @ts-ignore
+    const tableViewHeight = e.target.offsetHeight; // viewport
+    // @ts-ignore
+    const tableScrollHeight = e.target.scrollHeight; // length of all table
+    // @ts-ignore
+    const scrollLocation = e.target.scrollTop; // how far user scrolled
+
+    // If the user has scrolled within 200px of the bottom, add more data
+    const buffer = 200;
+    const limit = tableScrollHeight - tableViewHeight - buffer;
+    if (scrollLocation > limit) {
+      const data = this.getTableData(this.start, this.end);
+      // @ts-ignore
+      this.loadingOrders = this.loadingOrders.concat(data);
+      this.updateIndex();
+    }
+  }
+
+  getTableData(start: number, end: number): Order[] {
+    console.log('start:' + start + ' end: ' + end);
+    return this.loadedOrders.filter((value, index) => index >= start && index < end);
+  }
+
+  updateIndex(): void {
+    this.start = this.end;
+    this.end = this.limit + this.start;
   }
 }
