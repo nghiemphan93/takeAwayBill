@@ -1,5 +1,5 @@
 export interface OrderCriteria {
-  createdAt?: Date;
+  createdAt?: string;
   orderCode?: string;
   postcode?: string;
   price?: string;
