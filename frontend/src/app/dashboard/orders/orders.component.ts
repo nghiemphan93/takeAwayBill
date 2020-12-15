@@ -129,7 +129,7 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     return this.orderService.countPaidOrders(this.loadedOrders, paidOnline);
   }
 
-  calcAmountPaidOrders(paidOnline: number): string {
+  calcAmountPaidOrders(paidOnline: number): number {
     return this.orderService.calcAmountPaidOrders(this.loadedOrders, paidOnline);
   }
 }

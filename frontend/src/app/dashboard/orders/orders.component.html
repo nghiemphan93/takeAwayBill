@@ -26,12 +26,23 @@
     Total paid offline Orders: {{ calcPaidOrders(0)}}
   </div>
   <div>
-    Total revenues of online Orders: {{ calcAmountPaidOrders(1) | currency: 'EUR':true}}
+    Total revenues of online Orders: {{ calcAmountPaidOrders(1) | number : '1.2-2' | currency: 'EUR'}}
   </div>
   <div>
-    Total revenues of offline Orders: {{ calcAmountPaidOrders(0) | currency: 'EUR':true }}
+    Total revenues of offline Orders: {{ calcAmountPaidOrders(0) | number : '1.2-2' | currency: 'EUR'}}
   </div>
 </div>
+
+<!--date range picker-->
+<mat-form-field appearance="fill">
+  <mat-label>Enter a date range</mat-label>
+  <mat-date-range-input [rangePicker]="picker">
+    <input matStartDate placeholder="Start date">
+    <input matEndDate placeholder="End date">
+  </mat-date-range-input>
+  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>
 
 <!-- table area -->
 <div class="order-container">

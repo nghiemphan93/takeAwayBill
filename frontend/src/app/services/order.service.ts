@@ -32,8 +32,8 @@ export class OrderService {
         return orders.filter(order => order.paidOnline === paidOnline).length;
   }
 
-  calcAmountPaidOrders(orders: Order[], paidOnline: number): string {
+  calcAmountPaidOrders(orders: Order[], paidOnline: number): number {
     return orders.filter(order => order.paidOnline === paidOnline)
-      .reduce((sum, order) => sum + order.price, 0).toFixed(2);
+      .reduce((sum, order) => sum + order.price, 0);
   }
 }
