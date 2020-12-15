@@ -77,7 +77,7 @@ def getOrdersByDate():
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
         billsDf['Total amount'] = billsDf['Total amount'].str.replace(',', '.')
         billsDf['Total amount'] = billsDf['Total amount'].astype(float)
-        billsDf['Paid online'] = billsDf['Paid online'].fillna('0')
+        billsDf['Paid online'] = billsDf['Paid online'].fillna(0)
         billsDf['Date'] = pd.to_datetime(billsDf['Date'], format='%d-%m-%Y %H:%M')
         billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
         billsDf = billsDf.rename(

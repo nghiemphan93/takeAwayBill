@@ -18,10 +18,25 @@
 <button mat-raised-button color="primary" routerLink="/login">To Login</button>
 <hr/>
 
+<div class="m-5 grid grid-cols-4 gap-2">
+  <div>
+    Total paid online Orders: {{ calcPaidOrders(1)}}
+  </div>
+  <div>
+    Total paid offline Orders: {{ calcPaidOrders(0)}}
+  </div>
+  <div>
+    Total revenues of online Orders: {{ calcAmountPaidOrders(1) | currency: 'EUR':true}}
+  </div>
+  <div>
+    Total revenues of offline Orders: {{ calcAmountPaidOrders(0) | currency: 'EUR':true }}
+  </div>
+</div>
+
 <!-- table area -->
 <div class="order-container">
   <mat-table [dataSource]="loadingOrders" (scroll)="onTableScroll($event)" class="mat-elevation-z8"
-             matSort matSortActive='createdAt'  matSortDirection="asc" matSortDisableClear>
+             matSort matSortActive='createdAt' matSortDirection="asc" matSortDisableClear>
 
     <!-- date column -->
     <ng-container matColumnDef="createdAt">

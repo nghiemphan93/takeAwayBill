@@ -124,4 +124,12 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     this.start = this.end;
     this.end = this.limit + this.start;
   }
+
+  calcPaidOrders(paidOnline: number): number {
+    return this.orderService.countPaidOrders(this.loadedOrders, paidOnline);
+  }
+
+  calcAmountPaidOrders(paidOnline: number): string {
+    return this.orderService.calcAmountPaidOrders(this.loadedOrders, paidOnline);
+  }
 }
