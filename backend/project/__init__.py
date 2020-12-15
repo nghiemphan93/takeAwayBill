@@ -58,17 +58,17 @@ def getOrdersByDate():
     date = request.form.get('date')
     sortDirection = request.form.get('sortDirection')
     sortColumn = request.form.get('sortColumn')
-    pageIndex = request.form.get('pageIndex')
-    pageSize = request.form.get('pageSize')
+    # pageIndex = request.form.get('pageIndex')
+    # pageSize = request.form.get('pageSize')
 
-    if pageIndex is not None:
-        pageIndex = int(pageIndex)
-    else:
-        pageIndex = 0
-    if pageSize is not None:
-        pageSize = int(pageSize)
-    else:
-        pageSize = 10
+    # if pageIndex is not None:
+    #     pageIndex = int(pageIndex)
+    # else:
+    #     pageIndex = 0
+    # if pageSize is not None:
+    #     pageSize = int(pageSize)
+    # else:
+    #     pageSize = 15
     if sortColumn is None:
         sortColumn = 'createdAt'
 
@@ -77,14 +77,14 @@ def getOrdersByDate():
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
         billsDf['Total amount'] = billsDf['Total amount'].str.replace(',', '.')
         billsDf['Total amount'] = billsDf['Total amount'].astype(float)
-        billsDf['Paid online'] = billsDf['Paid online'].fillna('0')
+        billsDf['Paid online'] = billsDf['Paid online'].fillna(0)
         billsDf['Date'] = pd.to_datetime(billsDf['Date'], format='%d-%m-%Y %H:%M')
         billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
         billsDf = billsDf.rename(
             columns={'Date': 'createdAt', 'Order': 'orderCode', 'Postcode': 'postcode', 'Total amount': 'price',
                      'Paid online': 'paidOnline'})
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
-        billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
+        # billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401

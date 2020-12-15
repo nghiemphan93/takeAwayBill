@@ -8,7 +8,9 @@ import {MatTableModule} from '@angular/material/table';
 import {MatSortModule} from '@angular/material/sort';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
-
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {MatInputModule} from '@angular/material/input';
 
 @NgModule({
   declarations: [OrdersComponent],
@@ -19,7 +21,10 @@ import {MatButtonModule} from '@angular/material/button';
     MatTableModule,
     MatSortModule,
     MatFormFieldModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatInputModule,
   ]
 })
 export class DashboardModule { }
