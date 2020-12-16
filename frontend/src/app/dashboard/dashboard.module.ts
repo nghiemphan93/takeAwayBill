@@ -11,6 +11,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 import {MatInputModule} from '@angular/material/input';
+import {ReactiveFormsModule} from "@angular/forms";
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [OrdersComponent],
@@ -25,6 +27,8 @@ import {MatInputModule} from '@angular/material/input';
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
+    ReactiveFormsModule,
+    MatIconModule,
   ]
 })
 export class DashboardModule { }

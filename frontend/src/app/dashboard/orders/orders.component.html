@@ -1,99 +1,84 @@
-<!-- TODO: implement Search-->
-<!-- search area -->
-<!--<div class="search-bar">
+<section class="mx-auto max-w-2xl">
+  <aside class="container mx-auto flex justify-center items-center flex-col">
+    <div>
+      <p class="">
+        Total paid online Orders: <strong>{{ countOrders(1)}}</strong>
+      </p>
+      <p>
+        Total paid offline Orders: <strong>{{ countOrders(0)}}</strong>
+      </p>
+      <p>
+        Total revenues of paid online Orders: <strong>{{ calcRevenues(1)  | currency: 'EUR'}}</strong>
+      </p>
+      <p>
+        Total revenues of paid offline Orders: <strong>{{ calcRevenues(0) | currency: 'EUR'}}</strong>
+      </p>
 
-  <mat-form-field >
-    <input matInput type="search" placeholder="Order Code" #orderCodeInput>
-  </mat-form-field>
-  <mat-form-field style="flex: 0 0 10% !important;  margin-left: 24px;">
-    <input matInput type="search" placeholder="City" #cityInput>
-  </mat-form-field>
-
-  <mat-form-field style="flex: 0 0 10% !important;  margin-left: 24px;">
-    <input matInput type="search" placeholder="Amount" #priceInput>
-  </mat-form-field>
-
-</div>-->
-
-<p>Is authenticated = {{ isAuth$ | async }}</p>
-<button mat-raised-button color="primary" routerLink="/login">To Login</button>
-<hr/>
-
-<div class="m-5 grid grid-cols-4 gap-2">
-  <div>
-    Total paid online Orders: {{ calcPaidOrders(1)}}
-  </div>
-  <div>
-    Total paid offline Orders: {{ calcPaidOrders(0)}}
-  </div>
-  <div>
-    Total revenues of online Orders: {{ calcAmountPaidOrders(1)  | currency: 'EUR'}}
-  </div>
-  <div>
-    Total revenues of offline Orders: {{ calcAmountPaidOrders(0) | currency: 'EUR'}}
-  </div>
-</div>
-
-<!--date picker-->
-<!--see https://material.angular.io/components/datepicker/overview-->
-<mat-form-field>
-  <input matInput [matDatepicker]="picker" placeholder="Select a date" (dateChange)="onDateChanged($event)">
-  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-  <mat-datepicker #picker></mat-datepicker>
-</mat-form-field>
-
-<!-- table area -->
-<div class="order-container">
-  <mat-table [dataSource]="orders" (scroll)="onTableScroll($event)" class="mat-elevation-z8"
-             matSort matSortActive='createdAt' matSortDirection="asc" matSortDisableClear>
-
-    <!-- date column -->
-    <ng-container matColumnDef="createdAt">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Date
-      </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short'}} </mat-cell>
-    </ng-container>
-
-    <!-- orderCode column -->
-    <ng-container matColumnDef="orderCode">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Order Code
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.orderCode}} </mat-cell>
-    </ng-container>
-
-    <!-- postcode column -->
-    <ng-container matColumnDef="postcode">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Postcode
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.postcode}} </mat-cell>
-    </ng-container>
-
-    <!-- price column -->
-    <ng-container matColumnDef="price">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Amount
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.price}} </mat-cell>
-    </ng-container>
-
-    <!-- paidOnline column -->
-    <ng-container matColumnDef="paidOnline">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>
-        Paid Online
-      </mat-header-cell>
-      <mat-cell mat-cell *matCellDef="let element"> {{element.paidOnline}} </mat-cell>
-    </ng-container>
-
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
-  </mat-table>
-</div>
-
-<!--<mat-paginator [length]="loadedOrders" [pageSize]="initialPageSize"-->
-<!--               [pageSizeOptions]="[5, 10, 25, 50, 100, 200]">-->
-<!--</mat-paginator>-->
+      <form [formGroup]="datePickerForm">
+        <mat-form-field>
+          <input
+            formControlName="chosenDate"
+            matInput
+            [matDatepicker]="picker"
+            placeholder="Select a date"
+            (dateChange)="onDateChanged($event.value)">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </form>
+    </div>
+  </aside>
 
 
+  <main class="">
+    <mat-table [dataSource]="ordersDataSource" class=""
+               matSort matSortActive='createdAt' matSortDirection="asc" matSortDisableClear>
+      <!-- date column -->
+      <ng-container matColumnDef="createdAt">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Date
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short'}} </mat-cell>
+      </ng-container>
+
+      <!-- orderCode column -->
+      <ng-container matColumnDef="orderCode">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Order Code
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element"> {{element.orderCode}} </mat-cell>
+      </ng-container>
+
+      <!-- postcode column -->
+      <ng-container matColumnDef="postcode">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Postcode
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element"> {{element.postcode}} </mat-cell>
+      </ng-container>
+
+      <!-- price column -->
+      <ng-container matColumnDef="price">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Amount
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element"> {{element.price | currency: 'EUR'}} </mat-cell>
+      </ng-container>
+
+      <!-- paidOnline column -->
+      <ng-container matColumnDef="paidOnline">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Paid Online
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element">
+          <span *ngIf="element.paidOnline === 1">
+            <mat-icon [ngStyle]="{'color':'#009688'}">check_circle</mat-icon>
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    </mat-table>
+  </main>
+</section>

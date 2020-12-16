@@ -22,11 +22,11 @@ export class OrderService {
     return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData);
   }
 
-  countPaidOrders(orders: Order[], paidOnline: number): number {
-    return orders.filter(order => order.paidOnline === paidOnline).length;
+  countPaidOrders(orders: Order[], isPaidOnline: number): number {
+    return orders.filter(order => order.paidOnline === isPaidOnline).length;
   }
 
-  calcAmountPaidOrders(orders: Order[], paidOnline: number): number {
+  calcRevenues(orders: Order[], paidOnline: number): number {
     return orders.filter(order => order.paidOnline === paidOnline)
       .reduce((sum, order) => sum + order.price, 0);
   }
