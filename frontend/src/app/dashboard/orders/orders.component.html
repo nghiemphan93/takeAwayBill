@@ -70,7 +70,11 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header>
           Paid Online
         </mat-header-cell>
-        <mat-cell mat-cell *matCellDef="let element"> {{element.paidOnline}} </mat-cell>
+        <mat-cell mat-cell *matCellDef="let element">
+          <span *ngIf="element.paidOnline === 1">
+            <mat-icon [ngStyle]="{'color':'#009688'}">check_circle</mat-icon>
+          </span>
+        </mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
