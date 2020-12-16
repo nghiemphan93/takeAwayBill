@@ -1,8 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
-import {FormControl, FormGroup} from '@angular/forms';
+import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
 import {Router} from "@angular/router";
+
+const USERNAME = 'Golde8';
 
 @Component({
   selector: 'app-login',
@@ -11,16 +13,18 @@ import {Router} from "@angular/router";
 })
 export class LoginComponent implements OnInit {
   isAuth$ = new Observable<boolean>();
+  error = null;
+
   loginForm = new FormGroup({
-    username: new FormControl(''),
-    password: new FormControl('')
+    username: new FormControl({value: USERNAME, disabled: true}, Validators.required),
+    password: new FormControl('', Validators.required)
   });
 
   constructor(private authService: AuthService,
               private router: Router) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.isAuth$ = this.authService.getAuth();
 
     this.isAuth$.subscribe(async isAuth => {
@@ -32,11 +36,18 @@ export class LoginComponent implements OnInit {
 
   async onLogin(): Promise<void> {
     try {
-      await this.authService.login(this.loginForm.value.username, this.loginForm.value.password);
+      const password = this.loginForm.controls.password;
+
+      if (password.invalid) {
+        throw new Error('Password is required');
+      }
+
+      await this.authService.login(USERNAME, this.loginForm.value.password);
       await this.router.navigate(['dashboard']);
     } catch (e) {
-      console.log(e);
-      alert(`${e.statusText} ${e.message}`);
+      console.log(e.message);
+      this.error = (e.message === 'Password is required') ? e.message : 'Password is wrong';
+      // alert(`${e.statusText} ${e.message}`);
     }
   }
 
