@@ -14,25 +14,28 @@
         Total revenues of paid offline Orders: <strong>{{ calcRevenues(0) | currency: 'EUR'}}</strong>
       </p>
 
-      <form [formGroup]="datePickerForm">
-        <mat-form-field>
-          <input
-            formControlName="chosenDate"
-            matInput
-            [matDatepicker]="picker"
-            placeholder="Select a date"
-            (dateChange)="onDateChanged($event.value)">
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </form>
+      <div class="grid grid-cols-6 items-center">
+        <div class="col-start-2 col-span-1">
+          <mat-icon id="pdfIcon">picture_as_pdf</mat-icon>
+        </div>
+        <div class="col-end-6 col-span-3">
+          <form [formGroup]="datePickerForm">
+            <mat-form-field>
+              <input formControlName="chosenDate" matInput placeholder="Select a date"
+                     [matDatepicker]="picker" (dateChange)="onDateChanged($event.value)">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </form>
+        </div>
+      </div>
+
     </div>
   </aside>
 
-
   <main class="">
     <mat-table [dataSource]="ordersDataSource" class=""
-               matSort matSortActive='createdAt' matSortDirection="asc" matSortDisableClear>
+               matSort matSortActive='createdAt' matSortDirection="desc" matSortDisableClear>
       <!-- date column -->
       <ng-container matColumnDef="createdAt">
         <mat-header-cell *matHeaderCellDef mat-sort-header>

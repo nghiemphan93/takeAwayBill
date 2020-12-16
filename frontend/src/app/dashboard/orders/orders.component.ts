@@ -20,10 +20,11 @@ export class OrdersComponent implements OnInit {
   ordersDataSource = new MatTableDataSource<Order>();
   displayedColumns: string[] = ['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline'];
   isAuth$ = new Observable<boolean>();
+  isClicked = false;
 
   datePickerForm = new FormGroup({
     chosenDate: new FormControl()
-  })
+  });
 
   @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
