@@ -1,17 +1,33 @@
 <form *ngIf="(isAuth$ | async) == false" [formGroup]="loginForm" (ngSubmit)="onLogin()" method="post">
-  <mat-form-field>
-    <mat-label>Username</mat-label>
-    <input matInput type="text" formControlName="username" name="username">
-  </mat-form-field>
-
-  <mat-form-field>
-    <mat-label>Password</mat-label>
-    <input matInput type="password" formControlName="password" name="password">
-  </mat-form-field>
-
-  <button mat-raised-button color="primary" class="button" type="submit">Login</button>
+  <div class="flex justify-center items-center flex-col h-screen p-4">
+    <!--    <div class="grid justify-items-center h-screen p-4">-->
+    <div class="mb-4">
+      <label class="block text-grey-darker text-sm font-bold mb-2" for="username">
+        Username
+      </label>
+      <input matInput class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker"
+             id="username" type="text" formControlName="username" name="username" placeholder="Username">
+      <!--      <input matInput type="text" formControlName="username" name="username">-->
+    </div>
+    <div class="mb-4">
+      <label class="block text-grey-darker text-sm font-bold mb-2" for="password">
+        Password
+      </label>
+      <input matInput class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
+             id="password" type="password" formControlName="password" name="password"
+             placeholder="******************" required>
+      <!--      <input matInput type="password" formControlName="password" name="password" required>-->
+    </div>
+    <span class="text-red-500" *ngIf="error"> {{error}} </span>
+    <div class="flex justify-center">
+      <button mat-raised-button color="primary" class="button" type="submit">Login</button>
+    </div>
+  </div>
+  <!--  </div>-->
 </form>
-<button mat-raised-button color="primary" *ngIf="(isAuth$ | async) == true" class="button" type="button" (click)="onLogOut()">Logout</button>
+<button mat-raised-button color="primary" *ngIf="(isAuth$ | async) == true" class="button" type="button"
+        (click)="onLogOut()">Logout
+</button>
 <hr>
 <p>Is authenticated = {{ isAuth$ | async }}</p>
 <button mat-raised-button color="primary" routerLink="/dashboard">To Dashboard</button>
