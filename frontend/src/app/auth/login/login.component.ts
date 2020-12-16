@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormControl, FormGroup} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-login',
@@ -15,16 +16,24 @@ export class LoginComponent implements OnInit {
     password: new FormControl('')
   });
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,
+              private router: Router) {
   }
 
   ngOnInit() {
     this.isAuth$ = this.authService.getAuth();
+
+    this.isAuth$.subscribe(async isAuth => {
+      if (isAuth) {
+        await this.router.navigate(['dashboard']);
+      }
+    })
   }
 
   async onLogin(): Promise<void> {
     try {
       await this.authService.login(this.loginForm.value.username, this.loginForm.value.password);
+      await this.router.navigate(['dashboard']);
     } catch (e) {
       console.log(e);
       alert(`${e.statusText} ${e.message}`);
