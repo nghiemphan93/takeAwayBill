@@ -4,3 +4,4 @@ redis
 flask-cors
 requests
 beautifulsoup4
+pyreportjasper==1.0.2

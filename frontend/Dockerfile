@@ -12,7 +12,6 @@ COPY package*.json ./
 # Install dependecies
 RUN apk add --update npm
 RUN npm install -g @angular/cli && npm install
-RUN npm install pdfmake
 
 # Get all the code needed to run the app
 COPY . .
