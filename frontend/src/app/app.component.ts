@@ -1,5 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {AuthService} from './services/auth.service';
+import {Observable} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-root',
@@ -7,7 +9,11 @@ import {AuthService} from './services/auth.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(private authService: AuthService) {
+  isAuth$ = new Observable<boolean>();
+
+  constructor(private authService: AuthService,
+              private router: Router) {
     this.authService.initAuth().then();
+    this.isAuth$ = this.authService.getAuth();
   }
 }

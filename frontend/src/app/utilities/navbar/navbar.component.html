@@ -1,0 +1,27 @@
+<mat-toolbar color="primary" class="mb-2">
+  <section class="container max-w-screen-md mx-auto flex flex-row justify-between">
+    <div>
+      <button
+        mat-button
+        routerLink="/dashboard"
+      >TakeAway
+      </button>
+    </div>
+
+    <div>
+      <button
+        *ngIf="(isAuth$ | async) === false"
+        mat-flat-button color="primary"
+        routerLink="/login"
+      >Log In
+      </button>
+
+      <button
+        *ngIf="(isAuth$ | async) === true"
+        mat-flat-button color="primary"
+        (click)="onLogOut()"
+      >Log Out
+      </button>
+    </div>
+  </section>
+</mat-toolbar>
