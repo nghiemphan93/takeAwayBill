@@ -68,4 +68,8 @@ export class OrdersComponent implements OnInit {
     const date = (time.getDate() < 10 ? '0' : '') + time.getDate();
     return time.getFullYear() + '-' + month + '-' + date;
   }
+
+  exportPDF(): void {
+    this.orderService.savePDF();
+  }
 }

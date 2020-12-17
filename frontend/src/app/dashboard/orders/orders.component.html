@@ -16,7 +16,7 @@
 
       <div class="grid grid-cols-6 items-center">
         <div class="col-start-2 col-span-1">
-          <mat-icon id="pdfIcon">picture_as_pdf</mat-icon>
+          <mat-icon id="pdfIcon" (click)="exportPDF()">picture_as_pdf</mat-icon>
         </div>
         <div class="col-end-6 col-span-3">
           <form [formGroup]="datePickerForm">

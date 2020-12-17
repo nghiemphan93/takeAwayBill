@@ -1,5 +1,7 @@
 import datetime
 import io
+import os
+from pyreportjasper import PyReportJasper
 
 import pandas as pd
 import redis
@@ -58,17 +60,7 @@ def getOrdersByDate():
     date = request.form.get('date')
     sortDirection = request.form.get('sortDirection')
     sortColumn = request.form.get('sortColumn')
-    # pageIndex = request.form.get('pageIndex')
-    # pageSize = request.form.get('pageSize')
 
-    # if pageIndex is not None:
-    #     pageIndex = int(pageIndex)
-    # else:
-    #     pageIndex = 0
-    # if pageSize is not None:
-    #     pageSize = int(pageSize)
-    # else:
-    #     pageSize = 15
     if sortColumn is None:
         sortColumn = 'createdAt'
 
@@ -85,6 +77,34 @@ def getOrdersByDate():
                      'Paid online': 'paidOnline'})
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
         # billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
+        cache.set(date, billsDf.to_dict(orient='records'))
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401
+
+
+@app.route("/billsPdfByDate", methods=['POST'])
+@cross_origin()
+def json_to_pdf():
+    date = request.form.get('date')
+    print(cache.get(date).decode('utf-8'))
+    print(date)
+    # RESOURCES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources')
+    # REPORTS_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reports')
+    # input_file = os.path.join(REPORTS_DIR, 'orders.jrxml')
+    # output_file = os.path.join(REPORTS_DIR, 'json')
+    # conn = {
+    #     'driver': 'json',
+    #     'data_file': os.path.join(self.RESOURCES_DIR, 'orders.json'),
+    #     'json_query': 'contacts.person'
+    # }
+    # pyreportjasper = PyReportJasper()
+    # self.pyreportjasper.config(
+    #     input_file,
+    #     output_file,
+    #     output_formats=["pdf"],
+    #     db_connection=conn
+    # )
+    # self.pyreportjasper.process_report()
+    # print('Result is the file below.')
+    # print(output_file + '.pdf')
