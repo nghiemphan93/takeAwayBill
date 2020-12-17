@@ -1,7 +1,7 @@
 import datetime
 import io
-import os
-from pyreportjasper import PyReportJasper
+import pickle
+from typing import List, Dict, Any
 
 import pandas as pd
 import redis
@@ -77,7 +77,9 @@ def getOrdersByDate():
                      'Paid online': 'paidOnline'})
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
         # billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
-        cache.set(date, billsDf.to_dict(orient='records'))
+
+        pickledDf = pickle.dumps(billsDf.to_dict(orient='records'))
+        cache.set(date, pickledDf)
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401
@@ -87,24 +89,50 @@ def getOrdersByDate():
 @cross_origin()
 def json_to_pdf():
     date = request.form.get('date')
-    print(cache.get(date).decode('utf-8'))
-    print(date)
-    # RESOURCES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resources')
-    # REPORTS_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'reports')
-    # input_file = os.path.join(REPORTS_DIR, 'orders.jrxml')
-    # output_file = os.path.join(REPORTS_DIR, 'json')
-    # conn = {
-    #     'driver': 'json',
-    #     'data_file': os.path.join(self.RESOURCES_DIR, 'orders.json'),
-    #     'json_query': 'contacts.person'
-    # }
-    # pyreportjasper = PyReportJasper()
-    # self.pyreportjasper.config(
+    dataBack = cache.get(date)
+    dataBack: List[Dict[str, Any]] = pickle.loads(dataBack)
+
+    print(dataBack)
+    print(type(dataBack))
+    print(len(dataBack))
+    print(dataBack[1].get('createdAt'))
+
+    # jasper = JasperPy()
+    # jasper.process()
+
+    # result = json.JSONDecoder(dataBack)
+    # print(result)
+
+    # print(dataBack[6].get('createdAt'))
+    # print(dataBack[13])
+    # print(len(dataBack))
+    # print(type(dataBack))
+    # print(list(dataBack))
+    # print(type(dataBack))
+
+    return jsonify(message='deo biet')
+
+    # input_file = os.path.dirname(os.path.abspath(__file__)) + '/examples/jsonql.jrxml'
+    # output = os.path.dirname(os.path.abspath(__file__)) + '/output/_Contacts'
+    #
+    # data_file = os.path.dirname(os.path.abspath(__file__)) + '/examples/contacts.json'
+    #
+    # jasper = JasperPy()
+    # jasper.process_json(
     #     input_file,
-    #     output_file,
-    #     output_formats=["pdf"],
-    #     db_connection=conn
+    #     output_file=output,
+    #     format_list=["pdf"],  # Only PDF is allowed
+    #     parameters={},
+    #     connection={
+    #         'data_file': data_file,
+    #         'driver': 'jsonql',
+    #         'json_query': 'contacts.person',
+    #         'json_locale': 'es_ES',
+    #         'json_date_pattern': 'yyyy-MM-dd',
+    #         'json_number_pattern': '#,##0.##'
+    #     },
+    #     locale='en_US'  # LOCALE Ex.:(pt_BR, de_GE)
     # )
-    # self.pyreportjasper.process_report()
+    #
     # print('Result is the file below.')
-    # print(output_file + '.pdf')
+    # print(output + '.pdf')
