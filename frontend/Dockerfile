@@ -4,7 +4,7 @@ FROM alpine:3.12.1
 # Change directory so that our commands run inside this new directory
 WORKDIR /usr/src/app
 
-EXPOSE 4200
+EXPOSE 4205
 
 # Copy dependency definitions
 COPY package*.json ./
