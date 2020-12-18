@@ -88,6 +88,7 @@ def getOrdersByDate():
 @app.route("/billsPdfByDate", methods=['POST'])
 @cross_origin()
 def json_to_pdf():
+    print("EXPORT PDF WORK! ");
     date = request.form.get('date')
     dataBack = cache.get(date)
     dataBack: List[Dict[str, Any]] = pickle.loads(dataBack)
@@ -97,42 +98,28 @@ def json_to_pdf():
     print(len(dataBack))
     print(dataBack[1].get('createdAt'))
 
-    # jasper = JasperPy()
-    # jasper.process()
-
-    # result = json.JSONDecoder(dataBack)
-    # print(result)
-
-    # print(dataBack[6].get('createdAt'))
-    # print(dataBack[13])
-    # print(len(dataBack))
-    # print(type(dataBack))
-    # print(list(dataBack))
-    # print(type(dataBack))
-
-    return jsonify(message='deo biet')
-
-    # input_file = os.path.dirname(os.path.abspath(__file__)) + '/examples/jsonql.jrxml'
-    # output = os.path.dirname(os.path.abspath(__file__)) + '/output/_Contacts'
-    #
-    # data_file = os.path.dirname(os.path.abspath(__file__)) + '/examples/contacts.json'
-    #
-    # jasper = JasperPy()
-    # jasper.process_json(
-    #     input_file,
-    #     output_file=output,
-    #     format_list=["pdf"],  # Only PDF is allowed
-    #     parameters={},
-    #     connection={
-    #         'data_file': data_file,
-    #         'driver': 'jsonql',
-    #         'json_query': 'contacts.person',
-    #         'json_locale': 'es_ES',
-    #         'json_date_pattern': 'yyyy-MM-dd',
-    #         'json_number_pattern': '#,##0.##'
-    #     },
-    #     locale='en_US'  # LOCALE Ex.:(pt_BR, de_GE)
-    # )
-    #
-    # print('Result is the file below.')
-    # print(output + '.pdf')
+    RESOURCES_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'resource')
+    REPORTS_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'report')
+    input_file = os.path.join(REPORTS_DIR, 'takeAwayBill.jrxml')
+    output_file = os.path.join(REPORTS_DIR, 'csv')
+    conn = {
+        'driver': 'csv',
+        'data_file': os.path.join(self.RESOURCES_DIR, 'takeAwayBill.csv'),
+        'csv_charset': 'utf-8',
+        'csv_out_charset': 'utf-8',
+        'csv_field_del': '|',
+        'csv_out_field_del': '|',
+        'csv_record_del': "\r\n",
+        'csv_first_row': True,
+        'csv_columns': "createdAt,orderCode,paidOnline,postcode,price".split(",")
+    }
+    pyreportjasper = PyReportJasper()
+    self.pyreportjasper.config(
+        input_file,
+        output_file,
+        output_formats=["pdf"],
+        db_connection=conn
+    )
+    self.pyreportjasper.process_report()
+    print('Result is the file below.')
+    print(output_file + '.pdf')

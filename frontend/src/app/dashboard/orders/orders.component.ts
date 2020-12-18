@@ -8,7 +8,7 @@ import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/Order';
 import {MatDatepicker} from '@angular/material/datepicker';
 import {MatTableDataSource} from '@angular/material/table';
-import {FormControl, FormGroup} from "@angular/forms";
+import {FormControl, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-orders',
@@ -20,15 +20,14 @@ export class OrdersComponent implements OnInit {
   ordersDataSource = new MatTableDataSource<Order>();
   displayedColumns: string[] = ['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline'];
   isAuth$ = new Observable<boolean>();
-  isClicked = false;
 
   datePickerForm = new FormGroup({
     chosenDate: new FormControl()
   });
 
-  @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
-  @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
+  // @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
+  // @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
 
   constructor(private authService: AuthService,
               private orderService: OrderService) {
@@ -36,7 +35,7 @@ export class OrdersComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.isAuth$ = this.authService.getAuth();
-    this.datePickerForm.setValue({'chosenDate': new Date()});
+    this.datePickerForm.setValue({chosenDate: new Date()});
     this.onDateChanged(this.datePickerForm.value.chosenDate);
   }
 
@@ -63,13 +62,17 @@ export class OrdersComponent implements OnInit {
     });
   }
 
+  exportPDF(): void {
+    const dateString = this.formatTime(this.datePickerForm.value.chosenDate);
+    console.log('Export PDF for ' + dateString);
+    this.orderService.savePDF(dateString);
+  }
+
   formatTime(time: Date): string {
     const month = ((time.getMonth() + 1) < 10 ? '0' : '') + (time.getMonth() + 1);
     const date = (time.getDate() < 10 ? '0' : '') + time.getDate();
     return time.getFullYear() + '-' + month + '-' + date;
   }
 
-  exportPDF(): void {
-    this.orderService.savePDF();
-  }
+
 }
