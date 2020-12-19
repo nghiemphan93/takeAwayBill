@@ -19,7 +19,7 @@ export class OrderService {
     formData.append('sortDirection', criteria?.sortDirection || 'asc');
     formData.append('sortColumn', criteria?.sortColumn || 'createdAt');
 
-    return this.http.post<Order[]>('http://localhost:5005/getOrdersByDate', formData);
+    return this.http.post<Order[]>('https://take-away-bill.herokuapp.com/getOrdersByDate', formData);
   }
 
   countPaidOrders(orders: Order[], isPaidOnline: number): number {

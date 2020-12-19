@@ -6,7 +6,7 @@ import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  baseUrl = 'http://localhost:5005';
+  baseUrl = 'https://take-away-bill.herokuapp.com';
   isAuth = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
