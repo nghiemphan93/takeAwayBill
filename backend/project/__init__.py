@@ -2,15 +2,18 @@ import datetime
 import io
 
 import pandas as pd
-import redis
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import cross_origin
 
 app = Flask(__name__)
-cache = redis.Redis(host='redis', port=6379)
-# Start the session
 session = requests.Session()
+
+
+@app.route("/", methods=['GET'])
+@cross_origin()
+def helloWorld():
+    return jsonify(message='server works...')
 
 
 @app.route("/login", methods=['POST'])

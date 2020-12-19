@@ -1,6 +1,5 @@
 flask
 pandas
-redis
 flask-cors
 requests
 beautifulsoup4
