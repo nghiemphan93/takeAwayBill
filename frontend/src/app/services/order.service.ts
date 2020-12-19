@@ -3,13 +3,15 @@ import {Observable} from 'rxjs';
 import {OrderCriteria} from '../models/orderCriteria';
 import {HttpClient} from '@angular/common/http';
 import {Order} from '../models/Order';
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private authService: AuthService) {
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
@@ -19,7 +21,7 @@ export class OrderService {
     formData.append('sortDirection', criteria?.sortDirection || 'asc');
     formData.append('sortColumn', criteria?.sortColumn || 'createdAt');
 
-    return this.http.post<Order[]>('https://take-away-bill.herokuapp.com/getOrdersByDate', formData);
+    return this.http.post<Order[]>(`${this.authService.getBaseUrl()}/getOrdersByDate`, formData);
   }
 
   countPaidOrders(orders: Order[], isPaidOnline: number): number {
