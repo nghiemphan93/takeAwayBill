@@ -25,7 +25,9 @@ export class OrderService {
     const formData = new FormData();
     formData.append('date', date);
     console.log(formData.get('date'));
-    this.http.post('http://localhost:5005/billsPdfByDate', formData);
+    this.http.post('http://localhost:5005/billsPdfByDate', formData).subscribe(file => {
+      console.log(file);
+    });
   }
 
   countPaidOrders(orders: Order[], isPaidOnline: number): number {

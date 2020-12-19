@@ -11,7 +11,7 @@
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
 	<property name="net.sf.jasperreports.export.json.escape.members" value="true"/>
-	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="TAB-CSV"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="net.sf.jasperreports.print.create.bookmarks" value="true"/>
 	<style name="Title" forecolor="#FFFFFF" fontName="Times New Roman" fontSize="50" isBold="false" pdfFontName="Times-Bold"/>
 	<style name="SubTitle" forecolor="#CCCCCC" fontName="Times New Roman" fontSize="18" isBold="false" pdfFontName="Times-Roman"/>
@@ -71,17 +71,17 @@
 	<queryString language="csv">
 		<![CDATA[order.orderCode]]>
 	</queryString>
-	<field name="createdAt" class="java.lang.String"/>
 	<field name="orderCode" class="java.lang.String"/>
+	<field name="createdAt" class="java.lang.String"/>
+	<field name="postcode" class="java.lang.Integer"/>
+	<field name="price" class="java.lang.Double"/>
 	<field name="paidOnline" class="java.lang.String"/>
-	<field name="postcode" class="java.lang.String"/>
-	<field name="price" class="java.lang.String"/>
 	<variable name="id" class="java.lang.Integer" incrementType="Column">
 		<variableExpression><![CDATA[$V{id}.intValue()]]></variableExpression>
 	</variable>
-	<variable name="time" class="java.sql.Date"/>
+	<variable name="pageOnline" class="java.lang.Integer"/>
 	<title>
-		<band height="179" splitType="Stretch">
+		<band height="274" splitType="Stretch">
 			<staticText>
 				<reportElement x="81" y="130" width="399" height="25" uuid="57aed2b1-4f4e-40a3-a6ad-54dae8dd4c5a">
 					<property name="local_mesure_unitheight" value="pixel"/>
@@ -146,6 +146,10 @@
 				<reportElement x="180" y="70" width="85" height="15" uuid="361bdf30-1371-4efb-84e0-8e456f20dda5"/>
 				<text><![CDATA[Ort:]]></text>
 			</staticText>
+			<staticText>
+				<reportElement x="25" y="180" width="56" height="15" uuid="47db4014-46fd-41db-ba68-9af9da1a0a9f"/>
+				<text><![CDATA[Addresse:]]></text>
+			</staticText>
 		</band>
 	</title>
 	<columnHeader>
@@ -207,7 +211,7 @@
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="63c2286d-376e-475f-bf5a-04a951fa9a97"/>
 				</reportElement>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$V{id}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[1]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="55" y="8" width="175" height="30" uuid="a0184555-42ef-4324-aaa9-a88bff137cb0">
