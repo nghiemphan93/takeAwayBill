@@ -2,8 +2,6 @@ version: '3.7'
 
 services:
   backend:
-    depends_on:
-      - redis
     build: ./backend
     command: python manage.py run -h 0.0.0.0 --port=5005
     restart: always
@@ -24,5 +22,3 @@ services:
       - 4205:4205
     volumes:
     - ./frontend:/usr/src/app
-volumes:
-  redis_data:

@@ -1,5 +1,6 @@
 import datetime
 import io
+from datetime import timedelta
 
 import pandas as pd
 import requests
@@ -75,7 +76,13 @@ def getOrdersByDate():
     if sortColumn is None:
         sortColumn = 'createdAt'
 
-    s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
+    tempDate = pd.to_datetime(date, format='%Y-%m-%d')
+    if tempDate.dayofweek == 6:
+        tempDate = tempDate + timedelta(days=1)
+        tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
+        tempDate = f'{tempDate.year}-{tempDate.month:02d}-{tempDate.day:02d}'
+
+    s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={tempDate}')
     if 'Order,Date,Postcode' in s.text:
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
         billsDf['Total amount'] = billsDf['Total amount'].str.replace(',', '.')
