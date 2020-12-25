@@ -24,11 +24,11 @@ export class OrdersComponent implements OnInit {
 
   datePickerForm = new FormGroup({
     chosenDate: new FormControl()
-  })
+  });
 
-  @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
-  @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
+  // @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
+  // @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
 
   constructor(private authService: AuthService,
               private orderService: OrderService,
@@ -37,7 +37,7 @@ export class OrdersComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.isAuth$ = this.authService.getAuth();
-    this.datePickerForm.setValue({'chosenDate': new Date()});
+    this.datePickerForm.setValue({chosenDate: new Date()});
     this.onDateChanged(this.datePickerForm.value.chosenDate);
   }
 
@@ -62,6 +62,12 @@ export class OrdersComponent implements OnInit {
       // @ts-ignore
       this.ordersDataSource.sort = this.sort;
     });
+  }
+
+  exportPDF(): void {
+    const dateString = this.formatTime(this.datePickerForm.value.chosenDate);
+    console.log('Export PDF for ' + dateString);
+    this.orderService.savePDF(dateString);
   }
 
   formatTime(time: Date): string {

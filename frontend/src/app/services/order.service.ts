@@ -15,13 +15,21 @@ export class OrderService {
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
-
     const formData = new FormData();
     formData.append('date', criteria?.createdAt || '2020-09-10');
     formData.append('sortDirection', criteria?.sortDirection || 'asc');
     formData.append('sortColumn', criteria?.sortColumn || 'createdAt');
 
     return this.http.post<Order[]>(`${this.authService.getBaseUrl()}/getOrdersByDate`, formData);
+  }
+
+  savePDF(date: string): void {
+    const formData = new FormData();
+    formData.append('date', date);
+    console.log(formData.get('date'));
+    this.http.post('http://localhost:5005/billsPdfByDate', formData).subscribe(file => {
+      console.log(file);
+    });
   }
 
   countPaidOrders(orders: Order[], isPaidOnline: number): number {
@@ -32,4 +40,6 @@ export class OrderService {
     return orders.filter(order => order.paidOnline === paidOnline)
       .reduce((sum, order) => sum + order.price, 0);
   }
+
+
 }
