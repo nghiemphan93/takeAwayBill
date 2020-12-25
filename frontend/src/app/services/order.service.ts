@@ -29,15 +29,15 @@ export class OrderService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(3), map(error => {
-            if (retries++ === 2) {
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
               throw error;
             }
           }))
         }),
         catchError(err => {
           if (err.status === 401) {
-            this.authService.setNotAuthenticated();
+            // this.authService.setNotAuthenticated();
           }
           return of([]);
         })

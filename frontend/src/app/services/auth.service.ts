@@ -62,8 +62,8 @@ export class AuthService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(3), map(error => {
-            if (retries++ === 2) {
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
               throw error
             }
           }))
@@ -91,8 +91,8 @@ export class AuthService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(3), map(error => {
-            if (retries++ === 2) {
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
               throw error
             }
           }))

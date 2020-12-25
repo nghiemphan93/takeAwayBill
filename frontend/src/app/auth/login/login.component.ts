@@ -31,8 +31,8 @@ export class LoginComponent implements OnInit {
   }
 
   async onLogin(): Promise<void> {
+    this.spinnerService.show();
     try {
-      this.spinnerService.show();
       const password = this.loginForm.controls.password;
 
       if (password.invalid) {
@@ -41,11 +41,11 @@ export class LoginComponent implements OnInit {
 
       await this.authService.login(USERNAME, this.loginForm.value.password);
       await this.router.navigate(['dashboard']);
-      this.spinnerService.hide();
     } catch (e) {
       console.log(e.message);
       this.error = (e.message === 'Password is required') ? e.message : 'Password is wrong';
     }
+    this.spinnerService.hide();
   }
 
   async onLogOut(): Promise<void> {

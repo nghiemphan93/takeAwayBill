@@ -111,7 +111,6 @@ export class OrdersComponent implements OnInit {
         dataToPdf.push([createdAt, order.orderCode, order.price, order.paidOnline === 1 ? "*" : '']);
       }
     })
-    console.log(dataToPdf);
 
     const formatter = new Intl.NumberFormat('de-DE', {
       style: 'currency',
