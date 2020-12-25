@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
 
     this.isAuth$.subscribe(async isAuth => {
       if (isAuth) {
-        await this.router.navigate(['dashboard']);
+        // await this.router.navigate(['dashboard']);
       }
     })
   }
@@ -58,6 +58,10 @@ export class LoginComponent implements OnInit {
       console.log(e);
       alert(`${e.statusText} ${e.message}`);
     }
+  }
+
+  async onToDashboard() {
+    await this.router.navigate(['dashboard']);
   }
 
 }

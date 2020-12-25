@@ -1,6 +1,5 @@
 <form *ngIf="(isAuth$ | async) == false" [formGroup]="loginForm" (ngSubmit)="onLogin()" method="post">
-  <div class="flex justify-center items-center flex-col h-screen p-4">
-    <!--    <div class="grid justify-items-center h-screen p-4">-->
+  <div class="flex justify-center items-center flex-col p-4 mt-40">
     <div class="mb-4">
       <label class="block text-grey-darker text-sm font-bold mb-2" for="username">
         Username
@@ -23,12 +22,8 @@
       <button mat-raised-button color="primary" class="button" type="submit">Login</button>
     </div>
   </div>
-  <!--  </div>-->
 </form>
+
 <button mat-raised-button color="primary" *ngIf="(isAuth$ | async) == true" class="button" type="button"
-        (click)="onLogOut()">Logout
+        (click)="onToDashboard()">To Dashboard
 </button>
-<hr>
-<p>Is authenticated = {{ isAuth$ | async }}</p>
-<button mat-raised-button color="primary" routerLink="/dashboard">To Dashboard</button>
-<hr/>

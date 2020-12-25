@@ -1,4 +1,3 @@
-import csv
 import datetime
 import io
 from datetime import timedelta
@@ -63,26 +62,14 @@ def getOrdersByDate():
     date = request.form.get('date')
     sortDirection = request.form.get('sortDirection')
     sortColumn = request.form.get('sortColumn')
-
-    # pageIndex = request.form.get('pageIndex')
-    # pageSize = request.form.get('pageSize')
-
-    # if pageIndex is not None:
-    #     pageIndex = int(pageIndex)
-    # else:
-    #     pageIndex = 0
-    # if pageSize is not None:
-    #     pageSize = int(pageSize)
-    # else:
-    #     pageSize = 15
     if sortColumn is None:
         sortColumn = 'createdAt'
 
     tempDate = pd.to_datetime(date, format='%Y-%m-%d')
     if tempDate.dayofweek == 6:
         tempDate = tempDate + timedelta(days=1)
-        tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
-        tempDate = f'{tempDate.year}-{tempDate.month:02d}-{tempDate.day:02d}'
+    tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
+    tempDate = f'{tempDate.year}-{tempDate.month:02d}-{tempDate.day:02d}'
 
     s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={tempDate}')
     if 'Order,Date,Postcode' in s.text:
@@ -96,7 +83,6 @@ def getOrdersByDate():
             columns={'Date': 'createdAt', 'Order': 'orderCode', 'Postcode': 'postcode', 'Total amount': 'price',
                      'Paid online': 'paidOnline'})
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
-        # billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
-        return billsDf.to_json(orient='index'), 200
+        return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify(message='not authenticated'), 401

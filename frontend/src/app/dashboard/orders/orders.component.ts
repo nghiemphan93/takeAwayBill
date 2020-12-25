@@ -1,12 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
-import {ObjectUnsubscribedError, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
 import {AuthService} from '../../services/auth.service';
 import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/Order';
-import {MatDatepicker} from '@angular/material/datepicker';
 import {MatTableDataSource} from '@angular/material/table';
 import {FormControl, FormGroup} from "@angular/forms";
 import {DownloadService} from "../../services/download.service";
@@ -27,8 +25,6 @@ export class OrdersComponent implements OnInit {
   });
 
   @ViewChild(MatSort) sort?: MatSort;
-  // @ViewChild(MatPaginator, {static: true}) paginator?: MatPaginator;
-  // @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
 
   constructor(private authService: AuthService,
               private orderService: OrderService,
@@ -59,15 +55,12 @@ export class OrdersComponent implements OnInit {
     this.orderService.getOrders(criteria).subscribe((orders) => {
       this.loadedOrders = orders;
       this.ordersDataSource.data = this.loadedOrders;
-      // @ts-ignore
-      this.ordersDataSource.sort = this.sort;
-    });
-  }
 
-  exportPDF(): void {
-    const dateString = this.formatTime(this.datePickerForm.value.chosenDate);
-    console.log('Export PDF for ' + dateString);
-    this.orderService.savePDF(dateString);
+      if (orders.length > 0) {
+        // @ts-ignore
+        this.ordersDataSource.sort = this.sort;
+      }
+    });
   }
 
   formatTime(time: Date): string {

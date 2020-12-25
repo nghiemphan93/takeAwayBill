@@ -23,22 +23,19 @@ export class OrderService {
     return this.http.post<Order[]>(`${this.authService.getBaseUrl()}/getOrdersByDate`, formData);
   }
 
-  savePDF(date: string): void {
-    const formData = new FormData();
-    formData.append('date', date);
-    console.log(formData.get('date'));
-    this.http.post('http://localhost:5005/billsPdfByDate', formData).subscribe(file => {
-      console.log(file);
-    });
-  }
-
   countPaidOrders(orders: Order[], isPaidOnline: number): number {
-    return orders.filter(order => order.paidOnline === isPaidOnline).length;
+    if (orders.length > 0) {
+      return orders.filter(order => order.paidOnline === isPaidOnline).length;
+    }
+    return 0;
   }
 
   calcRevenues(orders: Order[], paidOnline: number): number {
-    return orders.filter(order => order.paidOnline === paidOnline)
-      .reduce((sum, order) => sum + order.price, 0);
+    if (orders.length > 0) {
+      return orders.filter(order => order.paidOnline === paidOnline)
+        .reduce((sum, order) => sum + order.price, 0);
+    }
+    return 0;
   }
 
 

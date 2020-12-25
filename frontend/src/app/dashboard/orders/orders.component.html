@@ -1,8 +1,3 @@
-<button
-  mat-flat-button color="primary"
-  (click)="onTestPdf()"
->Test Pdf
-</button>
 <section class="mx-auto max-w-2xl">
   <aside class="container mx-auto flex justify-center items-center flex-col">
     <div>
@@ -21,7 +16,7 @@
 
       <div class="grid grid-cols-6 items-center">
         <div class="col-start-2 col-span-1">
-          <mat-icon id="pdfIcon" (click)="exportPDF()">picture_as_pdf</mat-icon>
+          <mat-icon class="cursor-pointer" id="pdfIcon" color="primary" (click)="onTestPdf()">picture_as_pdf</mat-icon>
         </div>
         <div class="col-end-6 col-span-3">
           <form [formGroup]="datePickerForm">
