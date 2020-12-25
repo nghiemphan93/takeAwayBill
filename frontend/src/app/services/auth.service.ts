@@ -64,15 +64,15 @@ export class AuthService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(5), map(error => {
-            if (retries++ === 4) {
+          return errors.pipe(delay(1000), take(7), map(error => {
+            if (retries++ === 6) {
               throw error
             }
           }))
         }),
         catchError(err => {
           if (err.status === 401) {
-            // this.setNotAuthenticated();
+            this.setNotAuthenticated();
           }
           return of(null);
         })
@@ -93,15 +93,15 @@ export class AuthService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(5), map(error => {
-            if (retries++ === 4) {
+          return errors.pipe(delay(1000), take(7), map(error => {
+            if (retries++ === 6) {
               throw error
             }
           }))
         }),
         catchError(err => {
           if (err.status === 401) {
-            // this.setNotAuthenticated();
+            this.setNotAuthenticated();
           }
           return of(null);
         })
@@ -114,37 +114,30 @@ export class AuthService {
    * Initialize auth status for the whole application
    */
   async initAuth(): Promise<void> {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        this.spinnerService.show();
-        const httpOptions = {headers: new HttpHeaders({token})}
-        await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
-          .pipe(
-            retryWhen(errors => {
-              let retries = 0;
-              return errors.pipe(delay(1000), take(10), map(error => {
-                if (retries++ === 9) {
-                  throw error
-                }
-              }))
-            }),
-            catchError(err => {
-              if (err.status === 401) {
-                this.setNotAuthenticated();
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.spinnerService.show();
+      const httpOptions = {headers: new HttpHeaders({token})}
+      await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
+        .pipe(
+          retryWhen(errors => {
+            let retries = 0;
+            return errors.pipe(delay(1000), take(7), map(error => {
+              if (retries++ === 6) {
+                throw error
               }
-              return of(null);
-            })
-          )
-          .toPromise();
-        this.isAuth.next(true);
-      }
-    } catch (e) {
-      if (e.status === 401) {
-        console.log('log in to authenticate');
-        this.setNotAuthenticated();
-      }
+            }))
+          }),
+          catchError(err => {
+            if (err.status === 401) {
+              this.setNotAuthenticated();
+            }
+            return of(null);
+          })
+        )
+        .toPromise();
+      this.isAuth.next(true);
+      this.spinnerService.hide();
     }
-    this.spinnerService.hide();
   }
 }

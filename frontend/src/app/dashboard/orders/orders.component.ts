@@ -9,6 +9,7 @@ import {MatTableDataSource} from '@angular/material/table';
 import {FormControl, FormGroup} from "@angular/forms";
 import {DownloadService} from "../../services/download.service";
 import {SpinnerService} from "../../services/spinner.service";
+import {MatDatepicker} from "@angular/material/datepicker";
 
 @Component({
   selector: 'app-orders',
@@ -126,5 +127,9 @@ export class OrdersComponent implements OnInit {
     headers.push(`Restaurant: Goldene Drachen `)
     headers.push(`Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`)
     this.downloadService.toPdf(dataToPdf, sums, headers);
+  }
+
+  onDatePickerFocus(datePicker: MatDatepicker<Date>) {
+    datePicker.open();
   }
 }
