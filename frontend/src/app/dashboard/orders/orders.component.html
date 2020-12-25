@@ -41,7 +41,7 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header>
           Date
         </mat-header-cell>
-        <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short'}} </mat-cell>
+        <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short':'UTC':'de'}} </mat-cell>
       </ng-container>
 
       <!-- orderCode column -->

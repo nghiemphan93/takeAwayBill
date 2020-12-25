@@ -1,8 +1,4 @@
 flask
 pandas
-redis
 flask-cors
 requests
-beautifulsoup4
-fpdf
-csv-reader
