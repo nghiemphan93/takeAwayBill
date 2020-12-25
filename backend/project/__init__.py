@@ -1,5 +1,8 @@
+import csv
 import datetime
 import io
+import os
+import pickle
 
 import pandas as pd
 import redis
@@ -58,6 +61,7 @@ def getOrdersByDate():
     date = request.form.get('date')
     sortDirection = request.form.get('sortDirection')
     sortColumn = request.form.get('sortColumn')
+
     # pageIndex = request.form.get('pageIndex')
     # pageSize = request.form.get('pageSize')
 
@@ -85,6 +89,6 @@ def getOrdersByDate():
                      'Paid online': 'paidOnline'})
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
         # billsDf = billsDf.iloc[pageIndex * pageSize:(pageIndex + 1) * pageSize, :]
-        return jsonify(billsDf.to_dict(orient='records')), 200
+        return billsDf.to_json(orient='index'), 200
     else:
         return jsonify(message='not authenticated'), 401
