@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {Router} from "@angular/router";
 import {catchError, delay, map, retryWhen, take} from "rxjs/operators";
+import {SpinnerService} from "./spinner.service";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class AuthService {
   isAuth = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient,
-              private router: Router) {
+              private router: Router,
+              private spinnerService: SpinnerService) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
@@ -115,13 +117,14 @@ export class AuthService {
     try {
       const token = localStorage.getItem('token');
       if (token) {
+        this.spinnerService.show();
         const httpOptions = {headers: new HttpHeaders({token})}
         await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
           .pipe(
             retryWhen(errors => {
               let retries = 0;
-              return errors.pipe(delay(1000), take(5), map(error => {
-                if (retries++ === 4) {
+              return errors.pipe(delay(1000), take(10), map(error => {
+                if (retries++ === 9) {
                   throw error
                 }
               }))
@@ -138,9 +141,10 @@ export class AuthService {
       }
     } catch (e) {
       if (e.status === 401) {
-        // console.log('log in to authenticate');
-        // this.setNotAuthenticated();
+        console.log('log in to authenticate');
+        this.setNotAuthenticated();
       }
     }
+    this.spinnerService.hide();
   }
 }

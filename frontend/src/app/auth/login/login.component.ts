@@ -49,12 +49,14 @@ export class LoginComponent implements OnInit {
   }
 
   async onLogOut(): Promise<void> {
+    this.spinnerService.show();
     try {
       await this.authService.logout();
     } catch (e) {
       console.log(e);
       alert(`${e.statusText} ${e.message}`);
     }
+    this.spinnerService.hide();
   }
 
   async onToDashboard() {
