@@ -72,7 +72,7 @@ export class AuthService {
         }),
         catchError(err => {
           if (err.status === 401) {
-            this.setNotAuthenticated();
+            // this.setNotAuthenticated();
           }
           return of(null);
         })
@@ -101,7 +101,7 @@ export class AuthService {
         }),
         catchError(err => {
           if (err.status === 401) {
-            this.setNotAuthenticated();
+            // this.setNotAuthenticated();
           }
           return of(null);
         })
