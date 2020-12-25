@@ -10,6 +10,8 @@ import {MatButtonModule} from "@angular/material/button";
 import {NavbarComponent} from './utilities/navbar/navbar.component';
 import {AngularFireModule} from "@angular/fire";
 import {environment} from "../environments/environment";
+import {OverlayModule} from "@angular/cdk/overlay";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -23,9 +25,11 @@ import {environment} from "../environments/environment";
     BrowserAnimationsModule,
     MatToolbarModule,
     MatButtonModule,
-    AngularFireModule.initializeApp(environment.firebaseConfig)
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    OverlayModule,
+    MatProgressSpinnerModule
   ],
-  providers: [{provide: LOCALE_ID, useValue: 'de' }],
+  providers: [{provide: LOCALE_ID, useValue: 'de'}],
   bootstrap: [AppComponent]
 })
 export class AppModule {

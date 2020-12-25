@@ -1,36 +1,33 @@
 <section class="mx-auto max-w-2xl">
   <aside class="container mx-auto flex justify-center items-center flex-col">
-    <div>
-      <p class="">
-        Total paid online Orders: <strong>{{ countOrders(1)}}</strong>
-      </p>
-      <p>
-        Total paid offline Orders: <strong>{{ countOrders(0)}}</strong>
-      </p>
-      <p>
-        Total revenues of paid online Orders: <strong>{{ calcRevenues(1)  | currency: 'EUR'}}</strong>
-      </p>
-      <p>
-        Total revenues of paid offline Orders: <strong>{{ calcRevenues(0) | currency: 'EUR'}}</strong>
-      </p>
+    <p>
+      Gesamt <strong class="">{{ numbOnlineOrders + numbOfflineOrders }}</strong> Bestellungen von
+      <strong>{{ (onlineRevenues + offlineRevenues) | currency:'EUR'}}</strong>
+    </p>
+    <p>
+      Online bezahlt
+      <mat-icon [ngStyle]="{'color':'#009688', 'font-size': '18px'}">check_circle</mat-icon>
+      <strong class="">{{ numbOnlineOrders }}</strong> Bestellungen von
+      <strong>{{ (onlineRevenues) | currency:'EUR'}}</strong>
+    </p>
 
-      <div class="grid grid-cols-6 items-center">
-        <div class="col-start-2 col-span-1">
-          <mat-icon class="cursor-pointer" id="pdfIcon" color="primary" (click)="onTestPdf()">picture_as_pdf</mat-icon>
-        </div>
-        <div class="col-end-6 col-span-3">
-          <form [formGroup]="datePickerForm">
-            <mat-form-field>
-              <input formControlName="chosenDate" matInput placeholder="Select a date"
-                     [matDatepicker]="picker" (dateChange)="onDateChanged($event.value)">
-              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
-          </form>
-        </div>
+    <div class="grid grid-cols-6 items-center">
+      <div class="col-start-2 col-span-1">
+        <mat-icon class="cursor-pointer" id="pdfIcon" color="primary" (click)="onExportPdf()">picture_as_pdf
+        </mat-icon>
       </div>
-
+      <div class="col-end-6 col-span-3">
+        <form [formGroup]="datePickerForm">
+          <mat-form-field>
+            <input formControlName="chosenDate" matInput placeholder="Select a date"
+                   [matDatepicker]="picker" (dateChange)="onDateChanged($event.value)">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </form>
+      </div>
     </div>
+
   </aside>
 
   <main class="">
@@ -39,7 +36,7 @@
       <!-- date column -->
       <ng-container matColumnDef="createdAt">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
-          Date
+          Datum
         </mat-header-cell>
         <mat-cell *matCellDef="let element"> {{element.createdAt | date: 'short':'UTC':'de'}} </mat-cell>
       </ng-container>
@@ -47,7 +44,7 @@
       <!-- orderCode column -->
       <ng-container matColumnDef="orderCode">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
-          Order Code
+          #
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element"> {{element.orderCode}} </mat-cell>
       </ng-container>
@@ -63,7 +60,7 @@
       <!-- price column -->
       <ng-container matColumnDef="price">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
-          Amount
+          Betrag
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element"> {{element.price | currency: 'EUR'}} </mat-cell>
       </ng-container>
@@ -71,7 +68,7 @@
       <!-- paidOnline column -->
       <ng-container matColumnDef="paidOnline">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
-          Paid Online
+          Online bezahlt
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element">
           <span *ngIf="element.paidOnline === 1">

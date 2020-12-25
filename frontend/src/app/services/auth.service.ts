@@ -1,6 +1,8 @@
 import {Injectable, isDevMode} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {Router} from "@angular/router";
+import {catchError, delay, map, retryWhen, take} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -9,10 +11,19 @@ export class AuthService {
   baseUrl = 'https://take-away-bill.herokuapp.com';
   isAuth = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private router: Router) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
+
+    this.getAuth().subscribe(async isAuth => {
+      if (isAuth) {
+        await this.router.navigate(['dashboard']);
+      } else {
+        await this.router.navigate(['login']);
+      }
+    })
   }
 
   getBaseUrl() {
@@ -21,6 +32,16 @@ export class AuthService {
 
   getAuth(): Observable<boolean> {
     return this.isAuth.asObservable();
+  }
+
+  setNotAuthenticated() {
+    this.isAuth.next(false);
+    localStorage.removeItem('token');
+  }
+
+  setAuthenticated(token: string) {
+    localStorage.setItem('token', token);
+    this.isAuth.next(true);
   }
 
   /**
@@ -36,8 +57,26 @@ export class AuthService {
     formData.append('username', username);
     formData.append('password', password);
 
-    await this.http.post(`${this.baseUrl}/login`, formData).toPromise();
-    this.isAuth.next(true);
+    // @ts-ignore
+    const {token} = await this.http.post(`${this.baseUrl}/login`, formData)
+      .pipe(
+        retryWhen(errors => {
+          let retries = 0;
+          return errors.pipe(delay(1000), take(3), map(error => {
+            if (retries++ === 2) {
+              throw error
+            }
+          }))
+        }),
+        catchError(err => {
+          if (err.status === 401) {
+            this.setNotAuthenticated();
+          }
+          return of(null);
+        })
+      )
+      .toPromise();
+    this.setAuthenticated(token);
   }
 
   /**
@@ -45,8 +84,28 @@ export class AuthService {
    * Set new value of iAuth to false and notify other components via Observable
    */
   async logout(): Promise<void> {
-    await this.http.get(`${this.baseUrl}/logout`).toPromise();
-    this.isAuth.next(false);
+    const token = localStorage.getItem('token');
+    // @ts-ignore
+    const httpOptions = {headers: new HttpHeaders({token})}
+    await this.http.get(`${this.baseUrl}/logout`, httpOptions)
+      .pipe(
+        retryWhen(errors => {
+          let retries = 0;
+          return errors.pipe(delay(1000), take(3), map(error => {
+            if (retries++ === 2) {
+              throw error
+            }
+          }))
+        }),
+        catchError(err => {
+          if (err.status === 401) {
+            this.setNotAuthenticated();
+          }
+          return of(null);
+        })
+      )
+      .toPromise();
+    this.setNotAuthenticated();
   }
 
   /**
@@ -54,11 +113,14 @@ export class AuthService {
    */
   async initAuth(): Promise<void> {
     try {
-      await this.http.get(`${this.baseUrl}/initAuth`).toPromise();
+      const token = localStorage.getItem('token');
+      // @ts-ignore
+      const httpOptions = {headers: new HttpHeaders({token})}
+      await this.http.get(`${this.baseUrl}/initAuth`, httpOptions).toPromise();
       this.isAuth.next(true);
     } catch (e) {
       console.log('log in to authenticate');
-      this.isAuth.next(false);
+      this.setNotAuthenticated();
     }
   }
 }

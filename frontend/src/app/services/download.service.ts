@@ -12,43 +12,61 @@ export class DownloadService {
   constructor() {
   }
 
-  /**
-   * Export to pdf file
-   * @param orders
-   */
-  toPdf(orders: Array<Array<any>>) {
-    // TODO
-    const tempData = [
-      ['Datum', '#', '$', '*'],
-      ['13-12-2020, 10:13:01', '0OFC9R', '26,60', '*'],
-      ['13-12-2020, 10:13:01', '0OFC9R', '26,60', '*'],
-      ['13-12-2020, 10:13:01', '0OFC9R', '26,60', '*'],
-      ['13-12-2020, 10:13:01', '0OFC9R', '26,60', '*'],
-      ['13-12-2020, 10:13:01', '0OFC9R', '26,60', '*'],
-    ]
-
+  toPdf(orders: Array<Array<any>>, sums: string[], headers: string[]) {
     const docDefinition = {
       content: [
         {
-          layout: 'headerLineOnly', // optional
+          text: headers[0],
+          style: 'header'
+        },
+        {
+          text: headers[1],
+          margin: [0, 5, 0, 2]
+        },
+        {
+          text: headers[2],
+          margin: [0, 2, 0, 10]
+        },
+        {
+          text: sums[0],
+        },
+        {
+          text: sums[1],
+          margin: [0, 0, 0, 10]
+        },
+        {
+          layout: 'headerLineOnly',
           table: {
             headerRows: 1,
             widths: ['auto', 'auto', 'auto', 'auto'],
-            body: orders
+            body: orders,
+            alignment: 'center'
           }
         }
-      ]
-    };
-    // Declaring your layout
-    const myTableLayouts = {
-      exampleLayout: {
-        /*
-        Your layout here.
-        */
+        // {
+        //   columns: [
+        //     {width: '*', text: ''},
+        //     {
+        //       width: 'auto',
+        //       table: {
+        //         headerRows: 1,
+        //         widths: ['auto', 'auto', 'auto', 'auto'],
+        //         body: orders,
+        //       }
+        //     },
+        //     {width: '*', text: ''},
+        //   ]
+        // },
+      ],
+      styles: {
+        header: {
+          bold: true,
+          fontSize: 24
+        },
       }
     };
 
-
+    // @ts-ignore
     pdfMake.createPdf(docDefinition).open();
   }
 
