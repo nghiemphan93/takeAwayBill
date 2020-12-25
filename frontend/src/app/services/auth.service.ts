@@ -114,13 +114,33 @@ export class AuthService {
   async initAuth(): Promise<void> {
     try {
       const token = localStorage.getItem('token');
-      // @ts-ignore
-      const httpOptions = {headers: new HttpHeaders({token})}
-      await this.http.get(`${this.baseUrl}/initAuth`, httpOptions).toPromise();
-      this.isAuth.next(true);
+      if (token) {
+        const httpOptions = {headers: new HttpHeaders({token})}
+        await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
+          .pipe(
+            retryWhen(errors => {
+              let retries = 0;
+              return errors.pipe(delay(1000), take(5), map(error => {
+                if (retries++ === 4) {
+                  throw error
+                }
+              }))
+            }),
+            catchError(err => {
+              if (err.status === 401) {
+                this.setNotAuthenticated();
+              }
+              return of(null);
+            })
+          )
+          .toPromise();
+        this.isAuth.next(true);
+      }
     } catch (e) {
-      console.log('log in to authenticate');
-      this.setNotAuthenticated();
+      if (e.status === 401) {
+        // console.log('log in to authenticate');
+        // this.setNotAuthenticated();
+      }
     }
   }
 }
