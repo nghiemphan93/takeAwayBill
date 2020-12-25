@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, isDevMode} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 
@@ -6,10 +6,17 @@ import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  baseUrl = 'http://localhost:5005';
+  baseUrl = 'https://take-away-bill.herokuapp.com';
   isAuth = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
+    if (isDevMode()) {
+      this.baseUrl = 'http://localhost:5005';
+    }
+  }
+
+  getBaseUrl() {
+    return this.baseUrl;
   }
 
   getAuth(): Observable<boolean> {

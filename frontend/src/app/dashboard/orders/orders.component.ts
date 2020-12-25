@@ -1,14 +1,15 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
-import {Observable} from 'rxjs';
+import {ObjectUnsubscribedError, Observable} from 'rxjs';
 import {OrderCriteria} from '../../models/orderCriteria';
 import {AuthService} from '../../services/auth.service';
 import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/Order';
 import {MatDatepicker} from '@angular/material/datepicker';
 import {MatTableDataSource} from '@angular/material/table';
-import {FormControl, FormGroup} from '@angular/forms';
+import {FormControl, FormGroup} from "@angular/forms";
+import {DownloadService} from "../../services/download.service";
 
 @Component({
   selector: 'app-orders',
@@ -30,7 +31,8 @@ export class OrdersComponent implements OnInit {
   // @ViewChild(MatDatepicker) matDatepicker?: MatDatepicker<Date>;
 
   constructor(private authService: AuthService,
-              private orderService: OrderService) {
+              private orderService: OrderService,
+              private downloadService: DownloadService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -74,5 +76,22 @@ export class OrdersComponent implements OnInit {
     return time.getFullYear() + '-' + month + '-' + date;
   }
 
+  formatTimeWithHour(time: Date): string {
+    const month = ((time.getMonth() + 1) < 10 ? '0' : '') + (time.getMonth() + 1);
+    const date = (time.getDate() < 10 ? '0' : '') + time.getDate();
+    const hour = (time.getHours()) + time.getMinutes();
+    return time.getFullYear() + '-' + month + '-' + date + '-' + hour;
+  }
 
+  onTestPdf() {
+    const columns = ['Datum', '#', '€', ''];
+    const dataToPdf: Array<Array<any>> = [];
+    dataToPdf.push(columns);
+    this.loadedOrders.forEach(order => {
+      // order.createdAt = this.formatTimeWithHour(order.createdAt);
+      dataToPdf.push([order.createdAt, order.orderCode, order.price, order.paidOnline === 1 ? "*" : '']);
+    })
+    console.log(dataToPdf);
+    this.downloadService.toPdf(dataToPdf);
+  }
 }

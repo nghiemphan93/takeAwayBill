@@ -1,19 +1,21 @@
 import csv
 import datetime
 import io
-import os
-import pickle
+from datetime import timedelta
 
 import pandas as pd
-import redis
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import cross_origin
 
 app = Flask(__name__)
-cache = redis.Redis(host='redis', port=6379)
-# Start the session
 session = requests.Session()
+
+
+@app.route("/", methods=['GET'])
+@cross_origin()
+def helloWorld():
+    return jsonify(message='server works...')
 
 
 @app.route("/login", methods=['POST'])
@@ -76,7 +78,13 @@ def getOrdersByDate():
     if sortColumn is None:
         sortColumn = 'createdAt'
 
-    s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={date}')
+    tempDate = pd.to_datetime(date, format='%Y-%m-%d')
+    if tempDate.dayofweek == 6:
+        tempDate = tempDate + timedelta(days=1)
+        tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
+        tempDate = f'{tempDate.year}-{tempDate.month:02d}-{tempDate.day:02d}'
+
+    s = session.get(f'https://restaurants-old.takeaway.com/orders/archive?csv&period=week&date_end={tempDate}')
     if 'Order,Date,Postcode' in s.text:
         billsDf: pd.DataFrame = pd.read_csv(io.StringIO(s.content.decode('utf-8')))
         billsDf['Total amount'] = billsDf['Total amount'].str.replace(',', '.')
