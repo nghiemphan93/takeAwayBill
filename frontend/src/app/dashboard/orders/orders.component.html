@@ -82,4 +82,8 @@
       <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
     </mat-table>
   </main>
+
+  <aside *ngIf="(loadedOrders.length === 0)"  class="container mx-auto my-10 flex justify-center items-center flex-col">
+    <h3>Keine Bestellungen für {{ formatTimeGerman(datePickerForm.value.chosenDate) }}</h3>
+  </aside>
 </section>
