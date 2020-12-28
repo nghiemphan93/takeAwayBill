@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {AuthService} from "../../services/auth.service";
-import {fromEvent, Observable, of, pipe} from "rxjs";
-import {Router} from "@angular/router";
-import {SpinnerService} from "../../services/spinner.service";
+import {AuthService} from '../../services/auth.service';
+import {fromEvent, Observable, of, pipe} from 'rxjs';
+import {Router} from '@angular/router';
+import {SpinnerService} from '../../services/spinner.service';
 
 @Component({
   selector: 'app-navbar',

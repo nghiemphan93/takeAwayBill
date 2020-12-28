@@ -16,6 +16,7 @@ export class AppComponent {
   constructor(private authService: AuthService,
               private router: Router) {
     registerLocaleData(localeDe);
+
     this.authService.initAuth().then();
     this.isAuth$ = this.authService.getAuth();
   }

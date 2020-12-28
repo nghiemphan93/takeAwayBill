@@ -6,10 +6,10 @@ import {AuthService} from '../../services/auth.service';
 import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/Order';
 import {MatTableDataSource} from '@angular/material/table';
-import {FormControl, FormGroup} from "@angular/forms";
-import {DownloadService} from "../../services/download.service";
-import {SpinnerService} from "../../services/spinner.service";
-import {MatDatepicker} from "@angular/material/datepicker";
+import {FormControl, FormGroup} from '@angular/forms';
+import {DownloadService} from '../../services/download.service';
+import {SpinnerService} from '../../services/spinner.service';
+import {MatDatepicker} from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-orders',
@@ -55,9 +55,9 @@ export class OrdersComponent implements OnInit {
 
   calcSums() {
     this.numbOnlineOrders = this.countOrders(1);
-    this.numbOfflineOrders = this.countOrders(0)
+    this.numbOfflineOrders = this.countOrders(0);
     this.onlineRevenues = this.calcRevenues(1);
-    this.offlineRevenues = this.calcRevenues(0)
+    this.offlineRevenues = this.calcRevenues(0);
   }
 
   onDateChanged(chosenDate: Date): void {
@@ -109,23 +109,23 @@ export class OrdersComponent implements OnInit {
       if (order.paidOnline === 1) {
         let createdAt: string | Date = new Date(order.createdAt);
         createdAt = this.formatTimeWithHour(createdAt);
-        dataToPdf.push([createdAt, order.orderCode, order.price, order.paidOnline === 1 ? "*" : '']);
+        dataToPdf.push([createdAt, order.orderCode, order.price, order.paidOnline === 1 ? '*' : '']);
       }
-    })
+    });
 
     const formatter = new Intl.NumberFormat('de-DE', {
       style: 'currency',
       currency: 'EUR'
-    })
+    });
 
     const sums: Array<string> = [];
     sums.push(`Gesamt: \t\t\t\t ${this.numbOnlineOrders + this.numbOfflineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues + this.offlineRevenues)}`);
     sums.push(`Online bezahlt*: \t${this.numbOnlineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`);
 
-    const headers = []
-    headers.push(`Einzelauflistung`)
-    headers.push(`Restaurant: Goldene Drachen `)
-    headers.push(`Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`)
+    const headers = [];
+    headers.push(`Einzelauflistung`);
+    headers.push(`Restaurant: Goldene Drachen `);
+    headers.push(`Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`);
     this.downloadService.toPdf(dataToPdf, sums, headers);
   }
 

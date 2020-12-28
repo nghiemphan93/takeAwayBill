@@ -1,9 +1,10 @@
 import {Injectable, isDevMode} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {Router} from "@angular/router";
-import {catchError, delay, map, retryWhen, take} from "rxjs/operators";
-import {SpinnerService} from "./spinner.service";
+import {Router} from '@angular/router';
+import {catchError, delay, map, retryWhen, take} from 'rxjs/operators';
+import {SpinnerService} from './spinner.service';
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class AuthService {
 
   constructor(private http: HttpClient,
               private router: Router,
-              private spinnerService: SpinnerService) {
+              private spinnerService: SpinnerService,
+              private matSnackBar: MatSnackBar) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
@@ -25,7 +27,7 @@ export class AuthService {
       } else {
         await this.router.navigate(['login']);
       }
-    })
+    });
   }
 
   getBaseUrl() {
@@ -38,11 +40,11 @@ export class AuthService {
 
   setNotAuthenticated() {
     this.isAuth.next(false);
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
   }
 
   setAuthenticated(token: string) {
-    localStorage.setItem('token', token);
+    sessionStorage.setItem('token', token);
     this.isAuth.next(true);
   }
 
@@ -64,21 +66,30 @@ export class AuthService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(7), map(error => {
-            if (retries++ === 6) {
-              throw error
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
+              throw error;
             }
-          }))
+          }));
         }),
         catchError(err => {
-          if (err.status === 401) {
-            this.setNotAuthenticated();
-          }
+          console.log('login failed 401: ' + JSON.stringify(err));
+          this.setNotAuthenticated();
+          this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
+            duration: 3000
+          });
           return of(null);
         })
       )
       .toPromise();
     this.setAuthenticated(token);
+    this.autoClearAuthenticated();
+  }
+
+  autoClearAuthenticated() {
+    setTimeout(() => {
+      this.setNotAuthenticated();
+    }, 60000 * 10);
   }
 
   /**
@@ -86,23 +97,25 @@ export class AuthService {
    * Set new value of iAuth to false and notify other components via Observable
    */
   async logout(): Promise<void> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     // @ts-ignore
-    const httpOptions = {headers: new HttpHeaders({token})}
+    const httpOptions = {headers: new HttpHeaders({token})};
     await this.http.get(`${this.baseUrl}/logout`, httpOptions)
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(7), map(error => {
-            if (retries++ === 6) {
-              throw error
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
+              throw error;
             }
-          }))
+          }));
         }),
         catchError(err => {
-          if (err.status === 401) {
-            this.setNotAuthenticated();
-          }
+          console.log('logout failed 401: ' + JSON.stringify(err));
+          this.setNotAuthenticated();
+          this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
+            duration: 3000
+          });
           return of(null);
         })
       )
@@ -114,29 +127,34 @@ export class AuthService {
    * Initialize auth status for the whole application
    */
   async initAuth(): Promise<void> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (token) {
       this.spinnerService.show();
-      const httpOptions = {headers: new HttpHeaders({token})}
-      await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
+      const httpOptions = {headers: new HttpHeaders({token})};
+      const result = await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
         .pipe(
           retryWhen(errors => {
             let retries = 0;
-            return errors.pipe(delay(1000), take(7), map(error => {
-              if (retries++ === 6) {
-                throw error
+            return errors.pipe(delay(1000), take(5), map(error => {
+              if (retries++ === 4) {
+                throw error;
               }
-            }))
+            }));
           }),
           catchError(err => {
-            if (err.status === 401) {
-              this.setNotAuthenticated();
-            }
+            console.log('init auth failed 401: ' + JSON.stringify(err));
+            this.setNotAuthenticated();
+            this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
+              duration: 3000
+            });
             return of(null);
           })
         )
         .toPromise();
-      this.isAuth.next(true);
+      if (result) {
+        this.isAuth.next(true);
+        this.autoClearAuthenticated();
+      }
       this.spinnerService.hide();
     }
   }

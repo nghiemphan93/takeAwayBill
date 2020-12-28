@@ -3,8 +3,9 @@ import {Observable, of} from 'rxjs';
 import {OrderCriteria} from '../models/orderCriteria';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Order} from '../models/Order';
-import {AuthService} from "./auth.service";
-import {catchError, delay, map, retryWhen, take} from "rxjs/operators";
+import {AuthService} from './auth.service';
+import {catchError, delay, map, retryWhen, take} from 'rxjs/operators';
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,14 @@ import {catchError, delay, map, retryWhen, take} from "rxjs/operators";
 export class OrderService {
 
   constructor(private http: HttpClient,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private matSnackBar: MatSnackBar) {
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     // @ts-ignore
-    const httpOptions = {headers: new HttpHeaders({token})}
+    const httpOptions = {headers: new HttpHeaders({token})};
 
     const formData = new FormData();
     formData.append('date', criteria?.createdAt || '2020-09-10');
@@ -29,16 +31,18 @@ export class OrderService {
       .pipe(
         retryWhen(errors => {
           let retries = 0;
-          return errors.pipe(delay(1000), take(7), map(error => {
-            if (retries++ === 6) {
+          return errors.pipe(delay(1000), take(5), map(error => {
+            if (retries++ === 4) {
               throw error;
             }
-          }))
+          }));
         }),
         catchError(err => {
-          if (err.status === 401) {
-            this.authService.setNotAuthenticated();
-          }
+          console.log('order failed 401: ' + JSON.stringify(err));
+          this.authService.setNotAuthenticated();
+          this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
+            duration: 3000
+          });
           return of([]);
         })
       );

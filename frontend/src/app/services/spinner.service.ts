@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {ComponentPortal} from "@angular/cdk/portal";
-import {MatSpinner} from "@angular/material/progress-spinner";
-import {distinctUntilChanged, map, scan} from "rxjs/operators";
-import {Overlay, OverlayRef} from "@angular/cdk/overlay";
-import {Subject} from "rxjs";
+import {ComponentPortal} from '@angular/cdk/portal';
+import {MatSpinner} from '@angular/material/progress-spinner';
+import {distinctUntilChanged, map, scan} from 'rxjs/operators';
+import {Overlay, OverlayRef} from '@angular/cdk/overlay';
+import {Subject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +11,7 @@ import {Subject} from "rxjs";
 export class SpinnerService {
   private spinnerTopRef: OverlayRef;
 
-  private spin$: Subject<number> = new Subject()
+  private spin$: Subject<number> = new Subject();
 
   constructor(
     private overlay: Overlay,
@@ -29,7 +29,7 @@ export class SpinnerService {
       .asObservable()
       .pipe(
         scan((acc, next) => {
-          if (!next) return 0;
+          if (!next) { return 0; }
           return (acc + next) >= 0 ? acc + next : 0;
         }, 0),
         map(val => val > 0),
@@ -38,12 +38,12 @@ export class SpinnerService {
       .subscribe(
         (res) => {
           if (res) {
-            this.spinnerTopRef.attach(new ComponentPortal(MatSpinner))
+            this.spinnerTopRef.attach(new ComponentPortal(MatSpinner));
           } else if (this.spinnerTopRef.hasAttached()) {
             this.spinnerTopRef.detach();
           }
         }
-      )
+      );
   }
 
   show() {
