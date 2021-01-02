@@ -10,6 +10,11 @@
       <strong class="">{{ numbOnlineOrders }}</strong> Bestellungen von
       <strong>{{ (onlineRevenues) | currency:'EUR'}}</strong>
     </p>
+    <p>
+      Bargeld bezahlt
+      <strong class="">{{ numbOfflineOrders }}</strong> Bestellungen von
+      <strong>{{ (offlineRevenues) | currency:'EUR'}}</strong>
+    </p>
 
     <div class="grid grid-cols-6 items-center">
       <div class="col-start-2 col-span-1">
