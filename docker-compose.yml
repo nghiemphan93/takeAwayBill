@@ -12,13 +12,13 @@ services:
     volumes:
       - ./backend:/usr/src/app
 
-#  frontend:
-#    depends_on:
-#      - backend
-#    build: ./frontend
-#    command: ng serve --host 0.0.0.0 --poll 1 --port 4205
-#    restart: always
-#    ports:
-#      - 4205:4205
-#    volumes:
-#    - ./frontend:/usr/src/app
+  frontend:
+    depends_on:
+      - backend
+    build: ./frontend
+    command: ng serve --host 0.0.0.0 --poll 1 --port 4205
+    restart: always
+    ports:
+      - 4205:4205
+    volumes:
+    - ./frontend:/usr/src/app
