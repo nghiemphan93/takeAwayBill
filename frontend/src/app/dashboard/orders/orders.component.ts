@@ -108,6 +108,7 @@ export class OrdersComponent implements OnInit {
     this.loadedOrders.forEach(order => {
       if (order.paidOnline === 1) {
         let createdAt: string | Date = new Date(order.createdAt);
+        createdAt.setHours(createdAt.getHours() - 1);
         createdAt = this.formatTimeWithHour(createdAt);
         dataToPdf.push([createdAt, order.orderCode, order.price, order.paidOnline === 1 ? '*' : '']);
       }
