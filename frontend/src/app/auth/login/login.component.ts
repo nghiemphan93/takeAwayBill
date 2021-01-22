@@ -2,7 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../services/auth.service';
-import {Router} from "@angular/router";
+import {Router} from '@angular/router';
+import {SpinnerService} from '../../services/spinner.service';
 
 const USERNAME = 'Golde8';
 
@@ -21,43 +22,41 @@ export class LoginComponent implements OnInit {
   });
 
   constructor(private authService: AuthService,
-              private router: Router) {
+              private router: Router,
+              private spinnerService: SpinnerService) {
   }
 
   ngOnInit(): void {
     this.isAuth$ = this.authService.getAuth();
-
-    this.isAuth$.subscribe(async isAuth => {
-      if (isAuth) {
-        await this.router.navigate(['dashboard']);
-      }
-    })
   }
 
   async onLogin(): Promise<void> {
-    try {
-      const password = this.loginForm.controls.password;
+    this.spinnerService.show();
 
-      if (password.invalid) {
-        throw new Error('Password is required');
-      }
+    const password = this.loginForm.controls.password;
 
-      await this.authService.login(USERNAME, this.loginForm.value.password);
-      await this.router.navigate(['dashboard']);
-    } catch (e) {
-      console.log(e.message);
-      this.error = (e.message === 'Password is required') ? e.message : 'Password is wrong';
-      // alert(`${e.statusText} ${e.message}`);
+    if (password.invalid) {
+      throw new Error('Password is required');
     }
+
+    await this.authService.login(USERNAME, this.loginForm.value.password);
+    await this.router.navigate(['dashboard']);
+    this.spinnerService.hide();
   }
 
   async onLogOut(): Promise<void> {
+    this.spinnerService.show();
     try {
       await this.authService.logout();
     } catch (e) {
       console.log(e);
       alert(`${e.statusText} ${e.message}`);
     }
+    this.spinnerService.hide();
+  }
+
+  async onToDashboard() {
+    await this.router.navigate(['dashboard']);
   }
 
 }
