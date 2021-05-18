@@ -46,17 +46,23 @@ def helloWorld():
 @app.route("/login", methods=['POST'])
 @cross_origin()
 def login():
+    print('logging in....')
+
     username = request.form.get('username')
     password = request.form.get('password')
     currentSession = requests.Session()
-    result = currentSession.post("https://restaurants-old.takeaway.com/login",
+    result = currentSession.post("https://restaurant-portal-api.takeaway.com/api/login",
                                  data={
-                                     'user': username,
-                                     'pass': password,
-                                     'language': 'en'
+                                     'username': username,
+                                     'password': password,
                                  })
-    if 'Goldene Drachen' in result.text or 'Order,Date,Postcode' in result.text:
-        newToken = uuid.uuid4().hex
+    # print(result.json())
+    # print(type(result.json()))
+    response = result.json()
+
+    if response.get('code') == 200:
+        # newToken = result.json().get('data').get('access_token')
+        newToken = response.get('data').get('access_token')
         sessions[newToken] = User(token=newToken,
                                   createdAt=datetime.datetime.now(),
                                   session=currentSession)
