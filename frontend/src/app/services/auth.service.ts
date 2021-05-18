@@ -127,35 +127,42 @@ export class AuthService {
    * Initialize auth status for the whole application
    */
   async initAuth(): Promise<void> {
+    this.spinnerService.show();
     const token = sessionStorage.getItem('token');
     if (token) {
-      this.spinnerService.show();
-      const httpOptions = {headers: new HttpHeaders({token})};
-      const result = await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
-        .pipe(
-          retryWhen(errors => {
-            let retries = 0;
-            return errors.pipe(delay(1000), take(5), map(error => {
-              if (retries++ === 4) {
-                throw error;
-              }
-            }));
-          }),
-          catchError(err => {
-            console.log('init auth failed 401: ' + JSON.stringify(err));
-            this.setNotAuthenticated();
-            this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
-              duration: 3000
-            });
-            return of(null);
-          })
-        )
-        .toPromise();
-      if (result) {
-        this.isAuth.next(true);
-        this.autoClearAuthenticated();
-      }
-      this.spinnerService.hide();
+      this.isAuth.next(true);
+      this.autoClearAuthenticated();
     }
+    this.spinnerService.hide();
+
+    // if (token) {
+    //   this.spinnerService.show();
+    //   const httpOptions = {headers: new HttpHeaders({token})};
+    //   const result = await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
+    //     .pipe(
+    //       retryWhen(errors => {
+    //         let retries = 0;
+    //         return errors.pipe(delay(1000), take(5), map(error => {
+    //           if (retries++ === 4) {
+    //             throw error;
+    //           }
+    //         }));
+    //       }),
+    //       catchError(err => {
+    //         console.log('init auth failed 401: ' + JSON.stringify(err));
+    //         this.setNotAuthenticated();
+    //         this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
+    //           duration: 3000
+    //         });
+    //         return of(null);
+    //       })
+    //     )
+    //     .toPromise();
+    //   if (token) {
+    //     this.isAuth.next(true);
+    //     this.autoClearAuthenticated();
+    //   }
+    //   this.spinnerService.hide();
+    // }
   }
 }
