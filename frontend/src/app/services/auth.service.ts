@@ -5,6 +5,8 @@ import {Router} from '@angular/router';
 import {catchError, delay, map, retryWhen, take} from 'rxjs/operators';
 import {SpinnerService} from './spinner.service';
 import {MatSnackBar} from "@angular/material/snack-bar";
+import moment from "moment";
+import jwt_decode from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root'
@@ -40,11 +42,11 @@ export class AuthService {
 
   setNotAuthenticated() {
     this.isAuth.next(false);
-    sessionStorage.removeItem('token');
+    localStorage.removeItem('token');
   }
 
   setAuthenticated(token: string) {
-    sessionStorage.setItem('token', token);
+    localStorage.setItem('token', token);
     this.isAuth.next(true);
   }
 
@@ -89,7 +91,7 @@ export class AuthService {
   autoClearAuthenticated() {
     setTimeout(() => {
       this.setNotAuthenticated();
-    }, 60000 * 10);
+    }, 60000 * 60);
   }
 
   /**
@@ -97,7 +99,7 @@ export class AuthService {
    * Set new value of iAuth to false and notify other components via Observable
    */
   async logout(): Promise<void> {
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     // @ts-ignore
     const httpOptions = {headers: new HttpHeaders({token})};
     await this.http.get(`${this.baseUrl}/logout`, httpOptions)
@@ -128,41 +130,24 @@ export class AuthService {
    */
   async initAuth(): Promise<void> {
     this.spinnerService.show();
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (token) {
-      this.isAuth.next(true);
-      this.autoClearAuthenticated();
+      const expiredTime = moment
+        .duration(this.calculateDuration(token))
+        .asMinutes();
+      if(expiredTime > 0){
+        this.isAuth.next(true);
+      }
     }
     this.spinnerService.hide();
-
-    // if (token) {
-    //   this.spinnerService.show();
-    //   const httpOptions = {headers: new HttpHeaders({token})};
-    //   const result = await this.http.get(`${this.baseUrl}/initAuth`, httpOptions)
-    //     .pipe(
-    //       retryWhen(errors => {
-    //         let retries = 0;
-    //         return errors.pipe(delay(1000), take(5), map(error => {
-    //           if (retries++ === 4) {
-    //             throw error;
-    //           }
-    //         }));
-    //       }),
-    //       catchError(err => {
-    //         console.log('init auth failed 401: ' + JSON.stringify(err));
-    //         this.setNotAuthenticated();
-    //         this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
-    //           duration: 3000
-    //         });
-    //         return of(null);
-    //       })
-    //     )
-    //     .toPromise();
-    //   if (token) {
-    //     this.isAuth.next(true);
-    //     this.autoClearAuthenticated();
-    //   }
-    //   this.spinnerService.hide();
-    // }
   }
+
+  /**
+   * Calculate new time until token expires
+   * @param token
+   */
+  private calculateDuration = (token: string): number => {
+    const decodedToken = jwt_decode(token) as any;
+    return moment.unix(decodedToken.exp).diff(moment().toDate());
+  };
 }

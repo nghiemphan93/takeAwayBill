@@ -18,7 +18,7 @@ export class OrderService {
   }
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
-    const token = sessionStorage.getItem('token');
+    const token = localStorage.getItem('token');
     // @ts-ignore
     const httpOptions = {headers: new HttpHeaders({token})};
 
