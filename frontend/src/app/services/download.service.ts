@@ -32,6 +32,9 @@ export class DownloadService {
         },
         {
           text: sums[1],
+        },
+        {
+          text: sums[2],
           margin: [0, 0, 0, 10]
         },
         {
@@ -43,20 +46,6 @@ export class DownloadService {
             alignment: 'center'
           }
         }
-        // {
-        //   columns: [
-        //     {width: '*', text: ''},
-        //     {
-        //       width: 'auto',
-        //       table: {
-        //         headerRows: 1,
-        //         widths: ['auto', 'auto', 'auto', 'auto'],
-        //         body: orders,
-        //       }
-        //     },
-        //     {width: '*', text: ''},
-        //   ]
-        // },
       ],
       styles: {
         header: {

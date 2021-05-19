@@ -119,14 +119,16 @@ export class OrdersComponent implements OnInit {
       currency: 'EUR'
     });
 
-    const sums: Array<string> = [];
-    sums.push(`Gesamt: \t\t\t\t ${this.numbOnlineOrders + this.numbOfflineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues + this.offlineRevenues)}`);
-    sums.push(`Online bezahlt*: \t${this.numbOnlineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`);
-
     const headers = [];
     headers.push(`Einzelauflistung`);
     headers.push(`Restaurant: Goldene Drachen `);
     headers.push(`Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`);
+
+    const sums: Array<string> = [];
+    sums.push(`Gesamt: \t\t\t\t ${this.numbOnlineOrders + this.numbOfflineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues + this.offlineRevenues)}`);
+    sums.push(`Online bezahlt*: \t${this.numbOnlineOrders} Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`);
+    sums.push(`Bargeld bezahlt: \t${this.numbOfflineOrders} Bestellungen im Wert von ${formatter.format(this.offlineRevenues)}`);
+
     this.downloadService.toPdf(dataToPdf, sums, headers);
   }
 
