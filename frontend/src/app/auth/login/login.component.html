@@ -19,7 +19,7 @@
     </div>
     <span class="text-red-500" *ngIf="error"> {{error}} </span>
     <div class="flex justify-center">
-      <button mat-raised-button color="primary" class="button" type="submit">Login</button>
+      <button [disabled]="!loginForm.valid" mat-raised-button color="primary" class="button" type="submit">Login</button>
     </div>
   </div>
 </form>
