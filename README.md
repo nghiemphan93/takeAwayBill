@@ -1,9 +1,11 @@
 # takeAwayBill
-provide bills management services for a restaurant on takeaway.com
+provide bills management services for the Goldene Drachen restaurant on takeaway.com
 
 https://take-away-bill.web.app/
 
 Deployment steps:
-    ng build --prod
-    firebase deploy
-    git push heroku main
+    frontend: 
+        ng build --prod
+        firebase deploy
+    backend:
+        git push heroku main
