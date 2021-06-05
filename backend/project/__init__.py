@@ -1,5 +1,6 @@
 from datetime import timedelta
 from threading import Thread
+from typing import List
 
 import pandas as pd
 import requests
@@ -104,6 +105,40 @@ def getOrdersByDate():
     return jsonify(billsDf.to_dict(orient='records')), 200
 
 
+@app.route("/getLiveOrders", methods=['GET'])
+@cross_origin()
+def getLiveOrders():
+    token = request.headers.get('Token')
+
+    result = requests.get(
+        f'https://live-orders-api.takeaway.com/api/orders',
+        headers={"Authorization": f'Bearer {token}'})
+    orders: List[Order] = []
+    for order in result.json():
+        order = {
+            "placedDate": order.get('placed_date'),
+            "requestedTime": order.get('requested_time'),
+            "paymentType": order.get('payment_type'),
+            "total": order.get('subtotal'),
+            "customer": {
+                "fullName": order.get('customer').get('full_name'),
+                "street": order.get('customer').get('street'),
+                "streetNumber": order.get('customer').get('streetNumber'),
+                "postcode": order.get('customer').get('postcode'),
+                "city": order.get('customer').get('city'),
+                "extra": order.get('customer').get('extra')[0] if len(order.get('customer').get('extra')) > 0 else '',
+                "phoneNumber": order.get('customer').get('phoneNumber'),
+            },
+            "products": [{
+                "quantity": product.get('quantity'),
+                "name": product.get('name'),
+                "totalAmount": product.get('total_amount')
+            } for product in order.get('products')]
+        }
+        orders.append(order)
+    return jsonify(orders), 200
+
+
 class ThreadWithReturnValue(Thread):
     def __init__(self, group=None, target=None, name=None,
                  args=(), kwargs={}):
@@ -125,3 +160,33 @@ def createSingleDf(token: str, year: int, weekNumber: int, page: int) -> pd.Data
         f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=week&year={year}&number={weekNumber}&page={page}',
         headers={"Authorization": f'Bearer {token}'})
     return pd.DataFrame(result.json().get('data').get('orders'))
+
+
+class Customer:
+    def __init__(self, fullName: str, street: str, streetNumber: str, postcode: int, city: str, extra: str,
+                 phoneNumber: str):
+        self.fullName = fullName
+        self.street = street
+        self.streetNumber = streetNumber
+        self.postcode = postcode
+        self.city = city
+        self.extra = extra
+        self.phoneNumber = phoneNumber
+
+
+class Product:
+    def __init__(self, quantity: int, name: str, totalAmount: float):
+        self.quantity = quantity
+        self.name = name
+        self.totalAmount = totalAmount
+
+
+class Order:
+    def __init__(self, placedDate, requestedTime, paymentType: str, subtotal: float, customer: Customer,
+                 product: Product):
+        self.placedDate = placedDate
+        self.requestedTime = requestedTime
+        self.paymentType = paymentType
+        self.subtotal = subtotal
+        self.customer = customer
+        self.product = product
