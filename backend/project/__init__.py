@@ -108,7 +108,7 @@ def getOrdersByDate():
 @app.route("/getLiveOrders", methods=['GET'])
 @cross_origin()
 def getLiveOrders():
-    token = request.headers.get('Token')
+    token = request.headers.get('token')
 
     result = requests.get(
         f'https://live-orders-api.takeaway.com/api/orders',
@@ -119,11 +119,12 @@ def getLiveOrders():
             "placedDate": order.get('placed_date'),
             "requestedTime": order.get('requested_time'),
             "paymentType": order.get('payment_type'),
-            "total": order.get('subtotal'),
+            "subtotal": order.get('subtotal'),
+            "orderCode": order.get('public_reference'),
             "customer": {
                 "fullName": order.get('customer').get('full_name'),
                 "street": order.get('customer').get('street'),
-                "streetNumber": order.get('customer').get('streetNumber'),
+                "streetNumber": order.get('customer').get('street_number'),
                 "postcode": order.get('customer').get('postcode'),
                 "city": order.get('customer').get('city'),
                 "extra": order.get('customer').get('extra')[0] if len(order.get('customer').get('extra')) > 0 else '',
