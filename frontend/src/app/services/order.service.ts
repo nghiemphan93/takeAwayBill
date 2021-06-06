@@ -6,6 +6,7 @@ import { Order } from '../models/Order';
 import { AuthService } from './auth.service';
 import { catchError, delay, map, retryWhen, take } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { LiveOrder } from '../models/LiveOrder';
 
 @Injectable({
   providedIn: 'root',
@@ -52,6 +53,44 @@ export class OrderService {
           this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
             duration: 3000,
           });
+          return throwError(err);
+        })
+      );
+  }
+
+  getLiveOrders(): Observable<LiveOrder[]> {
+    const token = localStorage.getItem('token');
+    // @ts-ignore
+    const httpOptions = { headers: new HttpHeaders({ token }) };
+
+    return this.http
+      .get<LiveOrder[]>(
+        `${this.authService.getBaseUrl()}/getLiveOrders`,
+        httpOptions
+      )
+      .pipe(
+        retryWhen((errors) => {
+          let retries = 0;
+          return errors.pipe(
+            delay(1000),
+            take(5),
+            map((error) => {
+              if (retries++ === 4) {
+                throw error;
+              }
+            })
+          );
+        }),
+        catchError((err) => {
+          console.log('getting live orders failed 401: ' + JSON.stringify(err));
+          this.authService.setNotAuthenticated();
+          this.matSnackBar.open(
+            'Netzwerkfehler, bitte nochmal versuchen!',
+            '',
+            {
+              duration: 3000,
+            }
+          );
           return throwError(err);
         })
       );
