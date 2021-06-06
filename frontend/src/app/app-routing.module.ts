@@ -15,6 +15,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'live-orders',
+    loadChildren: () => import('./live-order/live-order.module').then(m => m.LiveOrderModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'login',
     loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
   },

@@ -1,0 +1,71 @@
+<section class="mx-auto max-w-2xl">
+  <main class="">
+    <mat-table
+      [dataSource]="ordersDataSource"
+      matSort
+      matSortActive="placedDate"
+      matSortDirection="asc"
+      matSortDisableClear
+      multiTemplateDataRows
+    >
+      <mat-header-row *matHeaderRowDef="columnsToDisplay"></mat-header-row>
+      <mat-row
+        *matRowDef="let element; columns: columnsToDisplay"
+        (click)="showLiveOrderDetail(element)"
+      ></mat-row>
+
+      <!-- placed date column -->
+      <ng-container matColumnDef="placedDate">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Datum
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          {{ element.placedDate | date: "shortTime":"UTC+4" }}
+        </mat-cell>
+      </ng-container>
+
+      <!-- requested date column -->
+      <ng-container matColumnDef="orderCode">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Code
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          {{ element.orderCode }}
+        </mat-cell>
+      </ng-container>
+
+      <!-- name column -->
+      <ng-container matColumnDef="street">
+        <mat-header-cell class="w-24" *matHeaderCellDef mat-sort-header>
+          Straße
+        </mat-header-cell>
+        <mat-cell class="w-24" *matCellDef="let element">
+          {{ element.customer.street }} {{ "\n" }}
+          {{ element.customer.streetNumber }}
+        </mat-cell>
+      </ng-container>
+
+      <!-- total column -->
+      <ng-container matColumnDef="subtotal">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Total
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element">
+          {{ element.subtotal | currency: "EUR" }}
+        </mat-cell>
+      </ng-container>
+
+      <!-- paidOnline column -->
+      <ng-container matColumnDef="paymentType">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Bezahlt?
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element">
+          <span *ngIf="element.paymentType === 'online'">
+            <mat-icon [ngStyle]="{ color: '#009688' }">check_circle</mat-icon>
+          </span>
+        </mat-cell>
+      </ng-container>
+    </mat-table>
+  </main>
+</section>

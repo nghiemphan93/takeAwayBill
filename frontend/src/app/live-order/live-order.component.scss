@@ -1,0 +1,25 @@
+.mat-table {
+  overflow: visible;
+  width: 100%;
+}
+
+.mat-column-placedDate {
+  flex: 0 0 17%;
+}
+
+.mat-column-orderCode {
+  flex: 0 0 20%;
+}
+
+.mat-column-street {
+  flex: 0 0 25%;
+}
+
+.mat-column-subtotal {
+  flex: 0 0 15%;
+  justify-content: center;
+}
+
+.mat-column-paymentType {
+  justify-content: center;
+}
