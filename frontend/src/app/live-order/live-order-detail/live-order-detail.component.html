@@ -1,0 +1,28 @@
+<main>
+  <p>
+    <strong>{{ data.customer.fullName }}</strong>
+  </p>
+  <p>{{ data.customer.street }} {{ data.customer.streetNumber }}</p>
+  <p *ngIf="data.customer.extra">{{ data.customer.extra }}</p>
+
+  <p>{{ data.customer.postcode }}, {{ data.customer.city }}</p>
+
+  <hr />
+
+  <section class="pt-5">
+    <p class="flex justify-between" *ngFor="let product of data.products">
+      <span
+        ><strong>{{ product.quantity }}</strong> x {{ product.name }}</span
+      >
+      <span>
+        {{ product.totalAmount | currency: "EUR" }}
+      </span>
+    </p>
+  </section>
+
+  <hr />
+
+  <h3 class="pt-5 text-right">
+    Total: <strong>{{ data.subtotal | currency: "EUR" }}</strong>
+  </h3>
+</main>
