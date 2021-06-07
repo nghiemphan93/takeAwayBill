@@ -25,13 +25,13 @@ export class AuthService {
       this.baseUrl = 'http://localhost:5005';
     }
 
-    this.getAuth().subscribe(async (isAuth) => {
-      if (isAuth) {
-        await this.router.navigate(['dashboard']);
-      } else {
-        await this.router.navigate(['login']);
-      }
-    });
+    // this.getAuth().subscribe(async (isAuth) => {
+    //   if (isAuth) {
+    //     await this.router.navigate(['dashboard']);
+    //   } else {
+    //     await this.router.navigate(['login']);
+    //   }
+    // });
   }
 
   getBaseUrl(): string {
@@ -138,18 +138,26 @@ export class AuthService {
    * Initialize auth status for the whole application
    */
   async initAuth(): Promise<void> {
-    this.spinnerService.show();
-    this.clearSessionCache();
-    const token = localStorage.getItem('token');
-    if (token) {
-      const expiredTime = moment
-        .duration(this.calculateDuration(token))
-        .asMinutes();
-      if (expiredTime > 0) {
-        this.isAuth.next(true);
+    try {
+      this.spinnerService.show();
+      this.clearSessionCache();
+      const token = localStorage.getItem('token');
+      if (token) {
+        const expiredTime = moment
+          .duration(this.calculateDuration(token))
+          .asMinutes();
+        if (expiredTime > 0) {
+          this.isAuth.next(true);
+        }
       }
+    } catch (e) {
+      console.error(e.message);
+      this.matSnackBar.open(e.message, '', {
+        duration: 3000,
+      });
+    } finally {
+      this.spinnerService.hide();
     }
-    this.spinnerService.hide();
   }
 
   /**

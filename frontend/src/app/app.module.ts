@@ -13,13 +13,14 @@ import { environment } from '../environments/environment';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { LiveOrderComponent } from './live-order/live-order.component';
+import { LiveOrderComponent } from './live-order/live-order/live-order.component';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [AppComponent, NavbarComponent, LiveOrderComponent],
@@ -32,14 +33,9 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatButtonModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     OverlayModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatButtonToggleModule,
     MatTableModule,
     MatIconModule,
-    MatDatepickerModule,
-    MatFormFieldModule,
-    ReactiveFormsModule,
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'de' }],
   bootstrap: [AppComponent],

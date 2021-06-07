@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { OrderCriteria } from '../../models/orderCriteria';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
@@ -17,7 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, OnDestroy {
   loadedOrders: Order[] = [];
   ordersDataSource = new MatTableDataSource<Order>();
   displayedColumns: string[] = [
@@ -28,6 +28,7 @@ export class OrdersComponent implements OnInit {
     'paidOnline',
   ];
   isAuth$ = new Observable<boolean>();
+  subscriptions = new Subscription();
 
   datePickerForm = new FormGroup({
     chosenDate: new FormControl(),
@@ -52,6 +53,12 @@ export class OrdersComponent implements OnInit {
     this.isAuth$ = this.authService.getAuth();
     this.datePickerForm.setValue({ chosenDate: new Date() });
     this.onDateChanged(this.datePickerForm.value.chosenDate);
+  }
+
+  ngOnDestroy() {
+    if (this.subscriptions) {
+      this.subscriptions.unsubscribe();
+    }
   }
 
   countOrders(isPaidOnline: number): number {

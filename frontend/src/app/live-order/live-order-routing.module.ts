@@ -1,13 +1,11 @@
-import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
-import {LiveOrderComponent} from "./live-order.component";
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { LiveOrderComponent } from './live-order/live-order.component';
 
-const routes: Routes = [
-  {path: '', component: LiveOrderComponent}
-];
+const routes: Routes = [{ path: '', component: LiveOrderComponent }];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class LiveOrderRoutingModule { }
+export class LiveOrderRoutingModule {}
