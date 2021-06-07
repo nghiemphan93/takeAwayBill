@@ -6,7 +6,7 @@ import { OrderService } from '../../services/order.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable, Subscription } from 'rxjs';
 import { LiveOrder } from '../../models/LiveOrder';
-import { MatDialog } from '@angular/material/dialog';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { LiveOrderDetailComponent } from '../live-order-detail/live-order-detail.component';
 
 @Component({
@@ -15,6 +15,7 @@ import { LiveOrderDetailComponent } from '../live-order-detail/live-order-detail
   styleUrls: ['./live-order.component.scss'],
 })
 export class LiveOrderComponent implements OnInit, OnDestroy {
+  isVisibleMiddle = false;
   loadedOrders: LiveOrder[] = [];
   ordersDataSource = new MatTableDataSource<LiveOrder>();
   columnsToDisplay: string[] = [
@@ -33,7 +34,7 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
     private matSnackBar: MatSnackBar,
     private authService: AuthService,
     private orderService: OrderService,
-    private dialog: MatDialog
+    private modalService: NzModalService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -74,9 +75,21 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
   }
 
   showLiveOrderDetail(element: LiveOrder) {
-    const dialogRef = this.dialog.open(LiveOrderDetailComponent, {
-      data: element,
-      maxHeight: '90vh',
+    this.modalService.create({
+      nzContent: LiveOrderDetailComponent,
+      nzComponentParams: {
+        data: element,
+      },
+      nzFooter: null,
     });
+  }
+
+  handleCancelMiddle(): void {
+    this.isVisibleMiddle = false;
+  }
+
+  handleOkMiddle(): void {
+    console.log('click ok');
+    this.isVisibleMiddle = false;
   }
 }

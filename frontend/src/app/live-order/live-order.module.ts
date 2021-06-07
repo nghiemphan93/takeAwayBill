@@ -13,10 +13,12 @@ import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { LiveOrderDetailComponent } from './live-order-detail/live-order-detail.component';
-import { MatDialogModule } from '@angular/material/dialog';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { LiveOrderComponent } from './live-order/live-order.component';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 
 @NgModule({
-  declarations: [LiveOrderDetailComponent],
+  declarations: [LiveOrderDetailComponent, LiveOrderComponent],
   imports: [
     CommonModule,
     LiveOrderRoutingModule,
@@ -30,7 +32,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatInputModule,
     ReactiveFormsModule,
     MatIconModule,
-    MatDialogModule,
+    NzModalModule,
+    NzButtonModule,
   ],
 })
 export class LiveOrderModule {}

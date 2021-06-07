@@ -5,4 +5,5 @@ export interface Customer {
   postcode: number;
   city: string;
   extra: string;
+  phoneNumber: string;
 }

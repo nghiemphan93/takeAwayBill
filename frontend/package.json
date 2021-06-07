@@ -28,6 +28,7 @@
     "firebase": "^8.2.0",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.1",
+    "ng-zorro-antd": "^11.4.1",
     "pdfmake": "^0.1.68",
     "postcss": "^7.0.32",
     "rxjs": "~6.6.0",

@@ -19,11 +19,18 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
+import { NZ_I18N } from 'ng-zorro-antd/i18n';
+import { de_DE } from 'ng-zorro-antd/i18n';
+import { registerLocaleData } from '@angular/common';
+import de from '@angular/common/locales/de';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+
+registerLocaleData(de);
 
 @NgModule({
-  declarations: [AppComponent, NavbarComponent, LiveOrderComponent],
+  declarations: [AppComponent, NavbarComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -36,8 +43,12 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatSnackBarModule,
     MatTableModule,
     MatIconModule,
+    FormsModule,
   ],
-  providers: [{ provide: LOCALE_ID, useValue: 'de' }],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'de' },
+    { provide: NZ_I18N, useValue: de_DE },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

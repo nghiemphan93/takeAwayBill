@@ -128,7 +128,7 @@ def getLiveOrders():
                 "postcode": order.get('customer').get('postcode'),
                 "city": order.get('customer').get('city'),
                 "extra": order.get('customer').get('extra')[0] if len(order.get('customer').get('extra')) > 0 else '',
-                "phoneNumber": order.get('customer').get('phoneNumber'),
+                "phoneNumber": order.get('customer').get('phone_number'),
             },
             "products": [{
                 "quantity": product.get('quantity'),
@@ -137,6 +137,7 @@ def getLiveOrders():
             } for product in order.get('products')]
         }
         orders.append(order)
+    orders = sorted(orders, key=lambda order: order.get('placedDate'), reverse=True)
     return jsonify(orders), 200
 
 
