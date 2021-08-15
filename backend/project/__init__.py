@@ -89,10 +89,6 @@ def getOrdersByDate():
     billsDf['Paid online'] = billsDf['paid_online'].fillna(False)
     billsDf['Date'] = pd.to_datetime(billsDf['date'], format='%d-%m-%Y %H:%M:%S')
 
-    print(f'date from frontend: {date}')
-    print(f'date from frontend: {pd.to_datetime(date, format="%Y-%m-%d").day}')
-    print(f'date from backend: {billsDf["Date"].dt.day}')
-
     billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
     billsDf = billsDf.rename(
         columns={'Date': 'createdAt', 'code': 'orderCode', 'city': 'postcode', 'Total amount': 'price',
@@ -133,7 +129,14 @@ def getLiveOrders():
             "products": [{
                 "quantity": product.get('quantity'),
                 "name": product.get('name'),
-                "totalAmount": product.get('total_amount')
+                "totalAmount": product.get('total_amount'),
+                "code": product.get('code'),
+                "specifications": [
+                    {
+                        "name": specification.get("name"),
+                        "totalAmount": specification.get("total_amount")
+                    } for specification in product.get('specifications')
+                ]
             } for product in order.get('products')]
         }
         orders.append(order)
