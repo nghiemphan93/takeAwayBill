@@ -16,6 +16,7 @@ import { LiveOrderDetailComponent } from './live-order-detail/live-order-detail.
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { LiveOrderComponent } from './live-order/live-order.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzTypographyModule } from 'ng-zorro-antd/typography';
 
 @NgModule({
   declarations: [LiveOrderDetailComponent, LiveOrderComponent],
@@ -34,6 +35,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
     MatIconModule,
     NzModalModule,
     NzButtonModule,
+    NzTypographyModule,
   ],
 })
 export class LiveOrderModule {}
