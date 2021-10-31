@@ -1,6 +1,10 @@
 from datetime import timedelta
 from threading import Thread
 from typing import List
+import cloudscraper
+from cloudscraper import CloudflareChallengeError
+import time
+
 
 import pandas as pd
 import requests
@@ -82,66 +86,85 @@ def getOrdersByDate():
         df = thread.join()
         if df is not None:
             dfs.append(df)
-    billsDf = pd.concat(dfs)
+    if len(dfs) > 0:
+        billsDf = pd.concat(dfs)
 
-    billsDf['Total amount'] = billsDf['amount'].str.replace(',', '.')
-    billsDf['Total amount'] = billsDf['Total amount'].astype(float)
-    billsDf['Paid online'] = billsDf['paid_online'].fillna(False)
-    billsDf['Date'] = pd.to_datetime(billsDf['date'], format='%d-%m-%Y %H:%M:%S')
+        billsDf['Total amount'] = billsDf['amount'].str.replace(',', '.')
+        billsDf['Total amount'] = billsDf['Total amount'].astype(float)
+        billsDf['Paid online'] = billsDf['paid_online'].fillna(False)
+        billsDf['Date'] = pd.to_datetime(billsDf['date'], format='%d-%m-%Y %H:%M:%S')
 
-    billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
-    billsDf = billsDf.rename(
-        columns={'Date': 'createdAt', 'code': 'orderCode', 'city': 'postcode', 'Total amount': 'price',
-                 'Paid online': 'paidOnline'})
-    billsDf['paidOnline'] = billsDf['paidOnline'].apply(lambda x: 1 if x is True else 0)
+        billsDf = billsDf.loc[billsDf['Date'].dt.day == pd.to_datetime(date, format='%Y-%m-%d').day]
+        billsDf = billsDf.rename(
+            columns={'Date': 'createdAt', 'code': 'orderCode', 'city': 'postcode', 'Total amount': 'price',
+                    'Paid online': 'paidOnline'})
+        billsDf['paidOnline'] = billsDf['paidOnline'].apply(lambda x: 1 if x is True else 0)
 
-    billsDf = billsDf[['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline']]
-    billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
+        billsDf = billsDf[['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline']]
+        billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
 
-    return jsonify(billsDf.to_dict(orient='records')), 200
+        # return 200
+        return jsonify(billsDf.to_dict(orient='records')), 200
+    else:
+        return jsonify([]), 200
 
 
 @app.route("/getLiveOrders", methods=['GET'])
 @cross_origin()
 def getLiveOrders():
     token = request.headers.get('token')
-
-    result = requests.get(
-        f'https://live-orders-api.takeaway.com/api/orders',
-        headers={"Authorization": f'Bearer {token}'})
+    
     orders: List[Order] = []
-    for order in result.json():
-        order = {
-            "placedDate": order.get('placed_date'),
-            "requestedTime": order.get('requested_time'),
-            "paymentType": order.get('payment_type'),
-            "subtotal": order.get('subtotal'),
-            "orderCode": order.get('public_reference'),
-            "customer": {
-                "fullName": order.get('customer').get('full_name'),
-                "street": order.get('customer').get('street'),
-                "streetNumber": order.get('customer').get('street_number'),
-                "postcode": order.get('customer').get('postcode'),
-                "city": order.get('customer').get('city'),
-                "extra": order.get('customer').get('extra')[0] if len(order.get('customer').get('extra')) > 0 else '',
-                "phoneNumber": order.get('customer').get('phone_number'),
-            },
-            "products": [{
-                "quantity": product.get('quantity'),
-                "name": product.get('name'),
-                "totalAmount": product.get('total_amount'),
-                "code": product.get('code'),
-                "specifications": [
-                    {
-                        "name": specification.get("name"),
-                        "totalAmount": specification.get("total_amount")
-                    } for specification in product.get('specifications')
-                ]
-            } for product in order.get('products')]
-        }
-        orders.append(order)
+    isFailed = True
+
+    for i in range(10):
+        try:
+            scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
+            result = scraper.get(
+                f'https://live-orders-api.takeaway.com/api/orders',
+                headers={"Authorization": f'Bearer {token}'})
+            isFailed = False
+        except CloudflareChallengeError as e:
+        # except Exception as e:
+            print(f'failed {i} times')
+        if not isFailed:
+            for order in result.json():
+                order = {
+                    "placedDate": order.get('placed_date'),
+                    "requestedTime": order.get('requested_time'),
+                    "paymentType": order.get('payment_type'),
+                    "subtotal": order.get('subtotal'),
+                    "orderCode": order.get('public_reference'),
+                    "customer": {
+                        "fullName": order.get('customer').get('full_name'),
+                        "street": order.get('customer').get('street'),
+                        "streetNumber": order.get('customer').get('street_number'),
+                        "postcode": order.get('customer').get('postcode'),
+                        "city": order.get('customer').get('city'),
+                        "extra": order.get('customer').get('extra')[0] if len(order.get('customer').get('extra')) > 0 else '',
+                        "phoneNumber": order.get('customer').get('phone_number'),
+                    },
+                    "products": [{
+                        "quantity": product.get('quantity'),
+                        "name": product.get('name'),
+                        "totalAmount": product.get('total_amount'),
+                        "code": product.get('code'),
+                        "specifications": [
+                            {
+                                "name": specification.get("name"),
+                                "totalAmount": specification.get("total_amount")
+                            } for specification in product.get('specifications')
+                        ]
+                    } for product in order.get('products')]
+                }
+                orders.append(order)
+            break
     orders = sorted(orders, key=lambda order: order.get('placedDate'), reverse=True)
-    return jsonify(orders), 200
+    
+    if isFailed:
+        return jsonify([]), 200
+    else:
+        return jsonify(orders), 200
 
 
 class ThreadWithReturnValue(Thread):
