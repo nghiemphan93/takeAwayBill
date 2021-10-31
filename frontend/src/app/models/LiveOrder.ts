@@ -7,6 +7,9 @@ export interface LiveOrder {
   paymentType: string;
   orderCode: string;
   subtotal: number;
+  restaurantTotal: number;
+  customerTotal: number;
   customer: Customer;
   products: Product[];
+  deliveryFree: number;
 }

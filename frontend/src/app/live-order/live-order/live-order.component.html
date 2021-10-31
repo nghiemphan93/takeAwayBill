@@ -20,7 +20,14 @@
           Datum
         </mat-header-cell>
         <mat-cell *matCellDef="let element">
-          {{ element.placedDate | date: "shortTime":"UTC+4" }}
+          <span *ngIf="isSummerTime(element.placedDate)">
+            {{ element.placedDate | date: "shortTime":"UTC+2" }}
+          </span>
+
+          <span *ngIf="!isSummerTime(element.placedDate)">
+            {{ element.placedDate | date: "shortTime":"UTC+4" }}
+          </span>
+
         </mat-cell>
       </ng-container>
 
@@ -51,7 +58,7 @@
           Total
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element">
-          {{ element.subtotal | currency: "EUR" }}
+          {{ element.customerTotal | currency: "EUR" }}
         </mat-cell>
       </ng-container>
 
