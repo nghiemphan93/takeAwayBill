@@ -3,3 +3,4 @@ pandas
 flask-cors
 requests
 gunicorn
+cloudscraper
