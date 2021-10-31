@@ -25,8 +25,8 @@ def helloWorld():
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
-    currentSession = requests.Session()
-    result = requests.post("https://restaurant-portal-api.takeaway.com/api/login",
+    scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
+    result = scraper.post("https://restaurant-portal-api.takeaway.com/api/login",
                            data={
                                'username': username,
                                'password': password,
