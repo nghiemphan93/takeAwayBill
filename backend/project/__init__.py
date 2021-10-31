@@ -103,7 +103,7 @@ def getOrdersByDate():
         billsDf = billsDf[['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline']]
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
 
-        # return 200
+        print(billsDf)
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify([]), 200
@@ -134,7 +134,10 @@ def getLiveOrders():
                     "requestedTime": order.get('requested_time'),
                     "paymentType": order.get('payment_type'),
                     "subtotal": order.get('subtotal'),
+                    "restaurantTotal": order.get('restaurant_total'),
+                    "customerTotal": order.get('customer_total'),
                     "orderCode": order.get('public_reference'),
+                    "deliveryFree": order.get('delivery_fee'),
                     "customer": {
                         "fullName": order.get('customer').get('full_name'),
                         "street": order.get('customer').get('street'),
@@ -159,6 +162,7 @@ def getLiveOrders():
                 }
                 orders.append(order)
             break
+    print(orders)
     orders = sorted(orders, key=lambda order: order.get('placedDate'), reverse=True)
     
     if isFailed:
@@ -211,10 +215,13 @@ class Product:
 
 class Order:
     def __init__(self, placedDate, requestedTime, paymentType: str, subtotal: float, customer: Customer,
-                 product: Product):
+                 product: Product, deliveryFee: float, restaurantTotal: float, customerTotal: float):
         self.placedDate = placedDate
         self.requestedTime = requestedTime
         self.paymentType = paymentType
         self.subtotal = subtotal
+        self.restaurantTotal = restaurantTotal
+        self.customerTotal: customerTotal
         self.customer = customer
         self.product = product
+        self.deliveryFree = deliveryFee
