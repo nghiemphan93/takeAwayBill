@@ -31,6 +31,7 @@
     "ng-zorro-antd": "^11.4.1",
     "pdfmake": "^0.1.68",
     "postcss": "^7.0.32",
+    "prettier": "^2.5.1",
     "rxjs": "~6.6.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
     "tslib": "^2.0.0",

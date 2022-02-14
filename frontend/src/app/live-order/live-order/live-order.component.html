@@ -8,12 +8,6 @@
       matSortDisableClear
       multiTemplateDataRows
     >
-      <mat-header-row *matHeaderRowDef="columnsToDisplay"></mat-header-row>
-      <mat-row
-        *matRowDef="let element; columns: columnsToDisplay"
-        (click)="showLiveOrderDetail(element)"
-      ></mat-row>
-
       <!-- placed date column -->
       <ng-container matColumnDef="placedDate">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -27,7 +21,6 @@
           <span *ngIf="!isSummerTime(element.placedDate)">
             {{ element.placedDate | date: "shortTime":"UTC+4" }}
           </span>
-
         </mat-cell>
       </ng-container>
 
@@ -73,6 +66,22 @@
           </span>
         </mat-cell>
       </ng-container>
+
+      <!-- status column -->
+      <ng-container matColumnDef="status">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          Status
+        </mat-header-cell>
+        <mat-cell mat-cell *matCellDef="let element">
+          {{ element.status | status }}
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row
+        *matRowDef="let element; columns: displayedColumns"
+        (click)="showLiveOrderDetail(element)"
+      ></mat-row>
     </mat-table>
   </main>
 </section>

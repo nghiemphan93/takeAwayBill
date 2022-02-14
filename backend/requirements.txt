@@ -3,3 +3,5 @@ pandas
 flask-cors
 requests
 cloudscraper
+firebase-admin
+Flask-APScheduler

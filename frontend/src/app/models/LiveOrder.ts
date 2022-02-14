@@ -12,4 +12,12 @@ export interface LiveOrder {
   customer: Customer;
   products: Product[];
   deliveryFree: number;
+  status: LiveOrderStatus;
+}
+
+export enum LiveOrderStatus {
+  CONFIRMED = 'confirmed',
+  KITCHEN = 'kitchen',
+  DELIVERED = 'delivered',
+  IN_DELIVERY = 'in_delivery',
 }

@@ -1,6 +1,6 @@
-flask
-pandas
+flask~=2.0.2
+pandas==1.4.1
 flask-cors
-requests
+requests~=2.27.1
 gunicorn
-cloudscraper
+cloudscraper~=1.2.58

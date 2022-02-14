@@ -55,7 +55,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.onDateChanged(this.datePickerForm.value.chosenDate);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this.subscriptions) {
       this.subscriptions.unsubscribe();
     }
@@ -83,9 +83,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   loadNewOrders(criteria: OrderCriteria): void {
-    this.spinnerService.show();
-    this.orderService.getOrders(criteria).subscribe(
-      (orders) => {
+    this.subscriptions.add(
+      this.orderService.getOrders(criteria).subscribe((orders) => {
         this.loadedOrders = orders;
         this.ordersDataSource.data = this.loadedOrders;
         this.calcSums();
@@ -93,16 +92,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
           // @ts-ignore
           this.ordersDataSource.sort = this.sort;
         }
-      },
-      (error) => {
-        console.error(error);
-        this.matSnackBar.open(error.message, '', {
-          duration: 3000,
-        });
-      },
-      () => {
-        this.spinnerService.hide();
-      }
+      })
     );
   }
 

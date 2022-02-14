@@ -1,12 +1,13 @@
 import { Injectable, isDevMode } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { Router } from '@angular/router';
-import { catchError, delay, map, retryWhen, take } from 'rxjs/operators';
-import { SpinnerService } from './spinner.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
 import moment from 'moment';
 import jwt_decode from 'jwt-decode';
+
+export class TakeAwayToken {
+  accessToken?: string;
+  refreshToken?: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -15,23 +16,10 @@ export class AuthService {
   baseUrl = 'https://take-away-bill.herokuapp.com';
   isAuth = new BehaviorSubject<boolean>(false);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar
-  ) {
+  constructor(private http: HttpClient) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
-
-    // this.getAuth().subscribe(async (isAuth) => {
-    //   if (isAuth) {
-    //     await this.router.navigate(['dashboard']);
-    //   } else {
-    //     await this.router.navigate(['login']);
-    //   }
-    // });
   }
 
   getBaseUrl(): string {
@@ -42,13 +30,23 @@ export class AuthService {
     return this.isAuth.asObservable();
   }
 
-  setNotAuthenticated(): void {
-    this.isAuth.next(false);
-    localStorage.removeItem('token');
+  getTokens(): TakeAwayToken {
+    const token: TakeAwayToken = {
+      accessToken: localStorage.getItem('accessToken') || '',
+      refreshToken: localStorage.getItem('refreshToken') || '',
+    };
+    return token;
   }
 
-  setAuthenticated(token: string): void {
-    localStorage.setItem('token', token);
+  setNotAuthenticated(): void {
+    this.isAuth.next(false);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+  setAuthenticated(accessToken?: string, refreshToken?: string): void {
+    localStorage.setItem('accessToken', accessToken || '');
+    localStorage.setItem('refreshToken', refreshToken || '');
     this.isAuth.next(true);
   }
 
@@ -60,8 +58,6 @@ export class AuthService {
    * Send POST Request to Server to log user in
    * Set new value of iAuth to true and notify other components via Observable
    *
-   * @param username
-   * @param password
    *
    */
   async login(username: string, password: string): Promise<void> {
@@ -69,33 +65,11 @@ export class AuthService {
     formData.append('username', username);
     formData.append('password', password);
 
-    // @ts-ignore
-    const { token } = await this.http
-      .post(`${this.baseUrl}/login`, formData)
-      .pipe(
-        retryWhen((errors) => {
-          let retries = 0;
-          return errors.pipe(
-            delay(1000),
-            take(5),
-            map((error) => {
-              if (retries++ === 4) {
-                throw error;
-              }
-            })
-          );
-        }),
-        catchError((err) => {
-          console.log('login failed 401: ' + JSON.stringify(err));
-          this.setNotAuthenticated();
-          this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
-            duration: 3000,
-          });
-          return throwError(err);
-        })
-      )
+    const token: TakeAwayToken = await this.http
+      .post<TakeAwayToken>(`${this.baseUrl}/login`, formData)
       .toPromise();
-    this.setAuthenticated(token);
+
+    this.setAuthenticated(token.accessToken, token.refreshToken);
   }
 
   /**
@@ -103,69 +77,43 @@ export class AuthService {
    * Set new value of iAuth to false and notify other components via Observable
    */
   async logout(): Promise<void> {
-    const token = localStorage.getItem('token');
-    // @ts-ignore
-    const httpOptions = { headers: new HttpHeaders({ token }) };
-    await this.http
-      .get(`${this.baseUrl}/logout`, httpOptions)
-      .pipe(
-        retryWhen((errors) => {
-          let retries = 0;
-          return errors.pipe(
-            delay(1000),
-            take(5),
-            map((error) => {
-              if (retries++ === 4) {
-                throw error;
-              }
-            })
-          );
-        }),
-        catchError((err) => {
-          console.log('logout failed 401: ' + JSON.stringify(err));
-          this.setNotAuthenticated();
-          this.matSnackBar.open('Netzwerkfehler, bitte nochmal anmelden!', '', {
-            duration: 3000,
-          });
-          return throwError(err);
-        })
-      )
-      .toPromise();
     this.setNotAuthenticated();
+  }
+
+  async generateNewTokens(): Promise<TakeAwayToken> {
+    const token: TakeAwayToken = await this.http
+      .get<TakeAwayToken>(`${this.baseUrl}/generate-new-tokens`)
+      .toPromise();
+    this.setAuthenticated(token.accessToken, token.refreshToken);
+    return token;
   }
 
   /**
    * Initialize auth status for the whole application
    */
   async initAuth(): Promise<void> {
-    try {
-      this.spinnerService.show();
-      this.clearSessionCache();
-      const token = localStorage.getItem('token');
-      if (token) {
-        const expiredTime = moment
-          .duration(this.calculateDuration(token))
-          .asMinutes();
-        if (expiredTime > 0) {
-          this.isAuth.next(true);
-        }
-      }
-    } catch (e) {
-      console.error(e.message);
-      this.matSnackBar.open(e.message, '', {
-        duration: 3000,
-      });
-    } finally {
-      this.spinnerService.hide();
+    this.clearSessionCache();
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    const accessTokenExpiredTime = moment
+      .duration(this.calculateDuration(accessToken || ''))
+      .asMinutes();
+    if (accessTokenExpiredTime > 3) {
+      this.isAuth.next(true);
+    } else {
+      await this.generateNewTokens();
     }
   }
 
   /**
    * Calculate new time until token expires
-   * @param token
    */
-  private calculateDuration = (token: string): number => {
-    const decodedToken = jwt_decode(token) as any;
-    return moment.unix(decodedToken.exp).diff(moment().toDate());
-  };
+  calculateDuration(token: string | undefined): number {
+    if (token) {
+      const decodedToken = jwt_decode(token) as any;
+      return moment.unix(decodedToken.exp).diff(moment().toDate());
+    }
+    return 0;
+  }
 }

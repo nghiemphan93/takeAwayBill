@@ -7,27 +7,34 @@
   <p>{{ data.customer.postcode }}, {{ data.customer.city }}</p>
   <p>Tel: {{ data.customer.phoneNumber }}</p>
 
-  <hr/>
+  <hr />
 
   <section class="pt-5">
     <div class="mb-1" *ngFor="let product of data.products">
       <div class="flex justify-between">
-      <span>
-        <strong>{{ product.quantity }}</strong> x {{ product.name }}<span
-        *ngIf="product.code"> (<strong>#{{ product.code }}</strong>)</span>
-      </span>
+        <span>
+          <strong>{{ product.quantity }}</strong> x {{ product.name
+          }}<span *ngIf="product.code">
+            (<strong>#{{ product.code }}</strong
+            >)</span
+          >
+        </span>
 
         <span>
-        {{ product.totalAmount | currency: "EUR" }}
+          {{ product.totalAmount | currency: "EUR" }}
         </span>
       </div>
 
-
-      <div class="flex justify-between" *ngFor="let specification of product.specifications">
-        <span class="ml-6" nz-typography nzType="secondary">+ {{ specification.name }}</span>
+      <div
+        class="flex justify-between"
+        *ngFor="let specification of product.specifications"
+      >
+        <span class="ml-6" nz-typography nzType="secondary"
+          >+ {{ specification.name }}</span
+        >
 
         <span>
-        {{ specification.totalAmount | currency: "EUR" }}
+          {{ specification.totalAmount | currency: "EUR" }}
         </span>
       </div>
     </div>
@@ -38,14 +45,22 @@
       <span class="ml-6" nz-typography nzType="warning">Lieferungskosten</span>
 
       <span>
-          {{ data.deliveryFree | currency: "EUR"}}
-        </span>
+        {{ data.deliveryFree | currency: "EUR" }}
+      </span>
     </div>
   </section>
 
-  <hr/>
+  <hr />
 
-  <h3 class="pt-5 text-right">
-    Total: <strong>{{ data.customerTotal | currency: "EUR" }}</strong>
-  </h3>
+  <section class="pt-5">
+    <div class="flex justify-between">
+      <span class="" nz-typography
+        >Status: {{ data.status | status: false }}</span
+      >
+
+      <h3 class="text-right">
+        Total: <strong>{{ data.customerTotal | currency: "EUR" }}</strong>
+      </h3>
+    </div>
+  </section>
 </main>

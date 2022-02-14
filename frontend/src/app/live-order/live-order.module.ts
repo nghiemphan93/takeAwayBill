@@ -17,6 +17,7 @@ import { NzModalModule } from 'ng-zorro-antd/modal';
 import { LiveOrderComponent } from './live-order/live-order.component';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [LiveOrderDetailComponent, LiveOrderComponent],
@@ -36,6 +37,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
     NzModalModule,
     NzButtonModule,
     NzTypographyModule,
+    SharedModule,
   ],
 })
 export class LiveOrderModule {}

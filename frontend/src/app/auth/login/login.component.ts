@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ const USERNAME = 'Golde8';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   isAuth$ = new Observable<boolean>();
   error = null;
 
@@ -24,6 +24,7 @@ export class LoginComponent implements OnInit {
     ),
     password: new FormControl('', Validators.required),
   });
+  sub = new Subscription();
 
   constructor(
     private authService: AuthService,
@@ -34,39 +35,31 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAuth$ = this.authService.getAuth();
+
+    this.sub.add(
+      this.isAuth$.subscribe(async (isAuth) => {
+        if (isAuth) {
+          await this.onToDashboard();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 
   async onLogin(): Promise<void> {
-    try {
-      this.spinnerService.show();
-      const password = this.loginForm.controls.password;
-      if (password.invalid) {
-        throw new Error('Password is required');
-      }
-      await this.authService.login(USERNAME, this.loginForm.value.password);
-      await this.router.navigate(['dashboard']);
-    } catch (e) {
-      console.error(e);
-      this.matSnackBar.open(e.message, '', {
-        duration: 3000,
-      });
-    } finally {
-      this.spinnerService.hide();
+    const password = this.loginForm.controls.password;
+    if (password.invalid) {
+      throw new Error('Password is required');
     }
+    await this.authService.login(USERNAME, this.loginForm.value.password);
+    await this.router.navigate(['dashboard']);
   }
 
   async onLogOut(): Promise<void> {
-    try {
-      this.spinnerService.show();
-      await this.authService.logout();
-    } catch (e) {
-      console.error(e);
-      this.matSnackBar.open(e.message, '', {
-        duration: 3000,
-      });
-    } finally {
-      this.spinnerService.hide();
-    }
+    await this.authService.logout();
   }
 
   async onToDashboard(): Promise<void> {
