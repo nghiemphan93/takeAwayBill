@@ -1,6 +1,7 @@
-flask~=2.0.2
-pandas==1.4.1
+flask
+pandas
 flask-cors
-requests~=2.27.1
-gunicorn
-cloudscraper~=1.2.58
+requests
+cloudscraper
+firebase-admin
+Flask-APScheduler
