@@ -1,4 +1,5 @@
 import atexit
+import os
 from datetime import timedelta
 from threading import Thread
 from typing import List, Dict
@@ -31,7 +32,8 @@ scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
 # Use a service account
-cred = credentials.Certificate(cert='backend/key.json')
+print(os.path.dirname(__file__) + './key.json')
+cred = credentials.Certificate(cert=os.path.dirname(__file__) + '/key.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -117,9 +119,7 @@ class User:
         return f'User(username={self.username}, password={self.password})'
 
 
-@scheduler.task("interval", id="do_update_refresh_token", hours=6)
-@cross_origin()
-def get_new_tokens_scheduler() -> Token:
+def get_new_tokens() -> Token:
     print("Updating refresh token")
     token_ref: DocumentReference = db.collection('collection').document('token')
     token_doc: DocumentSnapshot = token_ref.get()
@@ -137,6 +137,12 @@ def get_new_tokens_scheduler() -> Token:
     db.collection('collection').document('token').set(
         {'access_token': response.get('access_token'), 'refresh_token': response.get('refresh_token')})
     return Token(response.get('access_token'), response.get('refresh_token'))
+
+
+@scheduler.task("interval", id="do_update_refresh_token", hours=6)
+@cross_origin()
+def get_new_tokens_scheduler() -> Token:
+    return get_new_tokens()
 
 
 @app.route("/", methods=['GET'])
@@ -170,7 +176,7 @@ def login():
 def generate_new_tokens():
     print('generating new tokkens...')
     try:
-        token: Token = get_new_tokens_scheduler()
+        token: Token = get_new_tokens()
         return jsonify(accessToken=token.access_token, refreshToken=token.refresh_token), 200
     except Exception:
         return jsonify(message='logged in unsuccessfully'), 401
