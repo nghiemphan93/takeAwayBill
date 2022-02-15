@@ -2,6 +2,7 @@ flask
 pandas
 flask-cors
 requests
+gunicorn
 cloudscraper
 firebase-admin
 Flask-APScheduler

@@ -94,4 +94,4 @@ frontend/typings
 frontend/.DS_Store
 frontend/Thumbs.db
 
-/backend/key.json
+#/backend/key.json
