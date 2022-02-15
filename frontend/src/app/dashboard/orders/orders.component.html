@@ -25,7 +25,7 @@
         <form [formGroup]="datePickerForm">
           <mat-form-field (click)="onDatePickerFocus(picker)">
             <input formControlName="chosenDate" matInput placeholder="Select a date"
-                   [matDatepicker]="picker" (dateChange)="onDateChanged($event.value)"
+                   [matDatepicker]="picker" (dateChange)="onDateChanged($event.value)" readonly
             >
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
@@ -88,7 +88,7 @@
     </mat-table>
   </main>
 
-  <aside *ngIf="(loadedOrders.length === 0)"  class="container mx-auto my-10 flex justify-center items-center flex-col">
+  <aside *ngIf="(loadedOrders.length === 0)" class="container mx-auto my-10 flex justify-center items-center flex-col">
     <h3>Keine Bestellungen für {{ formatTimeGerman(datePickerForm.value.chosenDate) }}</h3>
   </aside>
 </section>

@@ -15,11 +15,11 @@
         </mat-header-cell>
         <mat-cell *matCellDef="let element">
           <span *ngIf="isSummerTime(element.placedDate)">
-            {{ element.placedDate | date: "shortTime":"UTC+2" }}
+            {{ element.placedDate | date: "shortTime":"UTC+0" }}
           </span>
 
           <span *ngIf="!isSummerTime(element.placedDate)">
-            {{ element.placedDate | date: "shortTime":"UTC+4" }}
+            {{ element.placedDate | date: "shortTime":"UTC+2" }}
           </span>
         </mat-cell>
       </ng-container>
