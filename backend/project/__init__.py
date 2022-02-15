@@ -31,7 +31,7 @@ scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
 # Use a service account
-cred = credentials.Certificate(cert='key.json')
+cred = credentials.Certificate(cert='../key.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
