@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import moment from 'moment';
 import jwt_decode from 'jwt-decode';
+import { Router } from '@angular/router';
 
 export class TakeAwayToken {
   accessToken?: string;
@@ -16,7 +17,7 @@ export class AuthService {
   baseUrl = 'https://take-away-bill.herokuapp.com';
   isAuth = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
@@ -52,6 +53,10 @@ export class AuthService {
 
   clearSessionCache(): void {
     sessionStorage.clear();
+  }
+
+  clearLocalCache(): void {
+    localStorage.clear();
   }
 
   /**
@@ -99,10 +104,18 @@ export class AuthService {
     const accessTokenExpiredTime = moment
       .duration(this.calculateDuration(accessToken || ''))
       .asMinutes();
-    if (accessTokenExpiredTime > 3) {
+    const refreshTokenExpiredTime = moment
+      .duration(this.calculateDuration(refreshToken || ''))
+      .asMinutes();
+
+    if (accessTokenExpiredTime > 0) {
       this.isAuth.next(true);
-    } else {
+    } else if (refreshTokenExpiredTime > 0) {
       await this.generateNewTokens();
+    } else {
+      this.isAuth.next(false);
+      this.clearLocalCache();
+      await this.router.navigate(['login']);
     }
   }
 
