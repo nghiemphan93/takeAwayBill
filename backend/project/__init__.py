@@ -118,6 +118,7 @@ class User:
 
 
 @scheduler.task("interval", id="do_update_refresh_token", hours=6)
+@cross_origin()
 def get_new_tokens_scheduler() -> Token:
     print("Updating refresh token")
     token_ref: DocumentReference = db.collection('collection').document('token')
@@ -167,6 +168,7 @@ def login():
 @app.route("/generate-new-tokens", methods=['GET'])
 @cross_origin()
 def generate_new_tokens():
+    print('generating new tokkens...')
     try:
         token: Token = get_new_tokens_scheduler()
         return jsonify(accessToken=token.access_token, refreshToken=token.refresh_token), 200
