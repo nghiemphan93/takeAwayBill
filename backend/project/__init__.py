@@ -8,7 +8,6 @@ import cloudscraper
 import firebase_admin
 import pandas as pd
 import requests
-from cloudscraper import CloudflareChallengeError
 from firebase_admin import credentials
 from firebase_admin import firestore
 from flask import Flask, jsonify, request
@@ -134,8 +133,9 @@ def get_new_tokens() -> Token:
             'refresh_token': token.refresh_token,
         })
     response: Dict = result.json()
-    db.collection('collection').document('token').set(
-        {'access_token': response.get('access_token'), 'refresh_token': response.get('refresh_token')})
+    if response.get('access_token') is not None and response.get('refresh_token') is not None:
+        db.collection('collection').document('token').set(
+            {'access_token': response.get('access_token'), 'refresh_token': response.get('refresh_token')})
     return Token(response.get('access_token'), response.get('refresh_token'))
 
 
@@ -265,7 +265,7 @@ def getLiveOrders():
                 f'https://live-orders-api.takeaway.com/api/orders',
                 headers={"Authorization": f'Bearer {access_token}'})
             isFailed = False
-        except CloudflareChallengeError as e:
+        except Exception as e:
             # except Exception as e:
             print(f'failed {i} times')
         if not isFailed:
