@@ -1,9 +1,4 @@
-<form
-  *ngIf="!(isAuth$ | async)"
-  [formGroup]="form"
-  (ngSubmit)="onSubmit()"
-  method="put"
->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" method="put">
   <div class="flex justify-center items-center flex-col p-4 mt-40">
     <mat-form-field class="mb-4">
       <mat-label
