@@ -182,6 +182,30 @@ def generate_new_tokens():
         return jsonify(message='logged in unsuccessfully'), 401
 
 
+@app.route("/update-refresh-token", methods=['PUT'])
+@cross_origin()
+def update_refresh_token():
+    print('updating refresh tokens...')
+    newRefreshToken = request.form.get('newRefreshToken')
+    try:
+        if newRefreshToken is not None:
+            token_ref: DocumentReference = db.collection('collection').document('token')
+            token_doc: DocumentSnapshot = token_ref.get()
+            oldToken: Token = Token.from_dict(token_doc.to_dict())
+
+            db.collection('collection').document('token').set(
+                {
+                    'refresh_token': newRefreshToken,
+                    'access_token': oldToken.access_token,
+                }
+            )
+            return jsonify(message='refreshToken updated successfully'), 200
+        else:
+            return jsonify(message='refreshToken updated  unsuccessfully'), 401
+    except Exception:
+        return jsonify(message='refreshToken updated  unsuccessfully'), 401
+
+
 @app.route("/logout", methods=['GET'])
 @cross_origin()
 def logout():

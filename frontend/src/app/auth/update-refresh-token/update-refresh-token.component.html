@@ -1,0 +1,37 @@
+<form
+  *ngIf="!(isAuth$ | async)"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  method="put"
+>
+  <div class="flex justify-center items-center flex-col p-4 mt-40">
+    <mat-form-field class="mb-4">
+      <mat-label
+        class="block text-grey-darker text-sm font-bold mb-2"
+        for="newRefreshToken"
+      >
+        New RefreshToken
+      </mat-label>
+      <input
+        matInput
+        id="newRefreshToken"
+        type="text"
+        formControlName="newRefreshToken"
+        name="newRefreshToken"
+      />
+    </mat-form-field>
+
+    <span class="text-red-500" *ngIf="error"> {{ error }} </span>
+    <div class="flex justify-center">
+      <button
+        [disabled]="!form.valid"
+        mat-raised-button
+        color="primary"
+        class="button"
+        type="submit"
+      >
+        Submit
+      </button>
+    </div>
+  </div>
+</form>

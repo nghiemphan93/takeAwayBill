@@ -42,7 +42,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
     if (
       accessTokenExpiredTime < 0 &&
-      !authReq.url.includes('generate-new-tokens')
+      !authReq.url.includes('generate-new-tokens') &&
+      !authReq.url.includes('update-refresh-token')
     ) {
       return fromPromise(this.authService.generateNewTokens()).pipe(
         switchMap((newToken: TakeAwayToken) => {

@@ -39,6 +39,14 @@ export class AuthService {
     return token;
   }
 
+  updateRefreshToken(newRefreshToken: string): Observable<string> {
+    const formData = new FormData();
+    formData.append('newRefreshToken', newRefreshToken);
+
+    const url = `${this.baseUrl}/update-refresh-token`;
+    return this.http.put<string>(url, formData);
+  }
+
   setNotAuthenticated(): void {
     this.isAuth.next(false);
     localStorage.removeItem('accessToken');
@@ -115,7 +123,7 @@ export class AuthService {
     } else {
       this.isAuth.next(false);
       this.clearLocalCache();
-      await this.router.navigate(['login']);
+      // await this.router.navigate(['login']);
     }
   }
 
