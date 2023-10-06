@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (password.invalid) {
       throw new Error('Password is required');
     }
-    await this.authService.login(USERNAME, this.loginForm.value.password);
+    await this.authService.login(USERNAME, this.loginForm.value.password || '');
     await this.router.navigate(['dashboard']);
   }
 

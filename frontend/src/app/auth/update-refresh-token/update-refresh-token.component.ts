@@ -55,7 +55,7 @@ export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
       }
     } catch (e) {
       console.log(e);
-      this.matSnackBar.open(e?.message, '', {
+      this.matSnackBar.open((e as Error)?.message, '', {
         duration: 3000,
       });
     }

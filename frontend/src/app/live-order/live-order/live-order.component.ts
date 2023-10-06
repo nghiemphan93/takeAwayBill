@@ -38,7 +38,7 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
     private matSnackBar: MatSnackBar,
     private authService: AuthService,
     private orderService: OrderService,
-    private modalService: NzModalService
+    private modalService: NzModalService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -55,7 +55,7 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
           // @ts-ignore
           this.ordersDataSource.sort = this.sort;
         }
-      })
+      }),
     );
   }
 
@@ -68,9 +68,7 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
   showLiveOrderDetail(element: LiveOrder): void {
     this.modalService.create({
       nzContent: LiveOrderDetailComponent,
-      nzComponentParams: {
-        data: element,
-      },
+      nzData: element,
       nzFooter: null,
     });
   }

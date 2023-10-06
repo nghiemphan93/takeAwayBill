@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
-import { Observable, Subscription } from 'rxjs';
+import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { OrderCriteria } from '../../models/orderCriteria';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
@@ -11,6 +11,8 @@ import { DownloadService } from '../../services/download.service';
 import { SpinnerService } from '../../services/spinner.service';
 import { MatDatepicker } from '@angular/material/datepicker';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-orders',
@@ -40,19 +42,28 @@ export class OrdersComponent implements OnInit, OnDestroy {
   offlineRevenues = 0;
 
   @ViewChild(MatSort) sort?: MatSort;
+  activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+  router: Router = inject(Router);
 
   constructor(
     private authService: AuthService,
     private orderService: OrderService,
     private downloadService: DownloadService,
     private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar
+    private matSnackBar: MatSnackBar,
   ) {}
 
   async ngOnInit(): Promise<void> {
     this.isAuth$ = this.authService.getAuth();
-    this.datePickerForm.setValue({ chosenDate: new Date() });
-    this.onDateChanged(this.datePickerForm.value.chosenDate);
+    const chosenDate: string = this.activatedRoute.snapshot.params?.chosenDate;
+    if (chosenDate) {
+      this.datePickerForm.setValue({ chosenDate: new Date(chosenDate) });
+      await this.stickDateToUrl(new Date(chosenDate));
+    } else {
+      this.datePickerForm.setValue({ chosenDate: new Date() });
+      await this.stickDateToUrl(new Date());
+    }
+    await this.onDateChanged(this.datePickerForm.value.chosenDate);
   }
 
   ngOnDestroy(): void {
@@ -76,24 +87,28 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.offlineRevenues = this.calcRevenues(0);
   }
 
-  onDateChanged(chosenDate: Date): void {
-    const dateString = this.formatTime(chosenDate);
-    const criteria: OrderCriteria = { createdAt: dateString };
-    this.loadNewOrders(criteria);
+  async stickDateToUrl(chosenDate: Date): Promise<void> {
+    const dateString = moment(chosenDate).format('YYYY-MM-DD');
+    await this.router.navigate(['dashboard', dateString]);
   }
 
-  loadNewOrders(criteria: OrderCriteria): void {
-    this.subscriptions.add(
-      this.orderService.getOrders(criteria).subscribe((orders) => {
-        this.loadedOrders = orders;
-        this.ordersDataSource.data = this.loadedOrders;
-        this.calcSums();
-        if (orders.length > 0) {
-          // @ts-ignore
-          this.ordersDataSource.sort = this.sort;
-        }
-      })
+  async onDateChanged(chosenDate: Date): Promise<void> {
+    await this.stickDateToUrl(chosenDate);
+    const dateString = this.formatTime(chosenDate);
+    const criteria: OrderCriteria = { createdAt: dateString };
+    await this.loadNewOrders(criteria);
+  }
+
+  async loadNewOrders(criteria: OrderCriteria): Promise<void> {
+    this.loadedOrders = await firstValueFrom(
+      this.orderService.getOrders(criteria),
     );
+    this.ordersDataSource.data = this.loadedOrders;
+    this.calcSums();
+    if (this.loadedOrders.length > 0) {
+      // @ts-ignore
+      this.ordersDataSource.sort = this.sort;
+    }
   }
 
   formatTime(time: Date): string {
@@ -143,7 +158,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     headers.push(`Einzelauflistung`);
     headers.push(`Restaurant: Goldene Drachen `);
     headers.push(
-      `Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`
+      `Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`,
     );
 
     const sums: Array<string> = [];
@@ -151,18 +166,18 @@ export class OrdersComponent implements OnInit, OnDestroy {
       `Gesamt: \t\t\t\t ${
         this.numbOnlineOrders + this.numbOfflineOrders
       } Bestellungen im Wert von ${formatter.format(
-        this.onlineRevenues + this.offlineRevenues
-      )}`
+        this.onlineRevenues + this.offlineRevenues,
+      )}`,
     );
     sums.push(
       `Online bezahlt*: \t${
         this.numbOnlineOrders
-      } Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`
+      } Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`,
     );
     sums.push(
       `Bargeld bezahlt: \t${
         this.numbOfflineOrders
-      } Bestellungen im Wert von ${formatter.format(this.offlineRevenues)}`
+      } Bestellungen im Wert von ${formatter.format(this.offlineRevenues)}`,
     );
 
     try {
@@ -170,7 +185,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       this.downloadService.toPdf(dataToPdf, sums, headers);
     } catch (e) {
       console.error(e);
-      this.matSnackBar.open(e.message, '', {
+      this.matSnackBar.open((e as Error)?.message, '', {
         duration: 3000,
       });
     } finally {

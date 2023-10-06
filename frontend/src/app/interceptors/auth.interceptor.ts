@@ -9,7 +9,6 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { AuthService, TakeAwayToken } from '../services/auth.service';
 import moment from 'moment';
-import { fromPromise } from 'rxjs/internal-compatibility';
 import {
   catchError,
   delay,
@@ -19,6 +18,7 @@ import {
   take,
 } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import {fromPromise} from 'rxjs/internal/observable/innerFrom';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

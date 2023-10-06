@@ -1,7 +1,6 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, inject, OnInit } from '@angular/core';
 import { LiveOrder } from '../../models/LiveOrder';
-import { LiveOrderComponent } from '../live-order/live-order.component';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-live-order-detail',
@@ -9,7 +8,8 @@ import { LiveOrderComponent } from '../live-order/live-order.component';
   styleUrls: ['./live-order-detail.component.scss'],
 })
 export class LiveOrderDetailComponent implements OnInit {
-  @Input() data!: LiveOrder;
+  readonly data: LiveOrder = inject(NZ_MODAL_DATA);
+
   constructor() {}
 
   ngOnInit(): void {}

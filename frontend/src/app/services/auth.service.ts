@@ -1,6 +1,6 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
 import moment from 'moment';
 import jwt_decode from 'jwt-decode';
 import { Router } from '@angular/router';
@@ -78,9 +78,9 @@ export class AuthService {
     formData.append('username', username);
     formData.append('password', password);
 
-    const token: TakeAwayToken = await this.http
+    const token: TakeAwayToken = await firstValueFrom(this.http
       .post<TakeAwayToken>(`${this.baseUrl}/login`, formData)
-      .toPromise();
+    );
 
     this.setAuthenticated(token.accessToken, token.refreshToken);
   }
@@ -94,9 +94,9 @@ export class AuthService {
   }
 
   async generateNewTokens(): Promise<TakeAwayToken> {
-    const token: TakeAwayToken = await this.http
+    const token: TakeAwayToken = await firstValueFrom(this.http
       .get<TakeAwayToken>(`${this.baseUrl}/generate-new-tokens`)
-      .toPromise();
+    );
     this.setAuthenticated(token.accessToken, token.refreshToken);
     return token;
   }
