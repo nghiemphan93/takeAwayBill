@@ -7,7 +7,7 @@ pipeline {
         stage('test') {
             when {
                 expression {
-                    executeTests
+                    true
                 }
             }
             steps {
