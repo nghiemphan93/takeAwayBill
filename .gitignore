@@ -59,10 +59,6 @@ frontend/bazel-out
 # dependencies
 frontend/node_modules
 
-# profiling files
-chrome-profiler-events*.json
-speed-measure-plugin*.json
-
 # IDEs and editors
 frontend/.idea
 frontend/.project
@@ -70,7 +66,6 @@ frontend/.classpath
 frontend/.c9/
 frontend/*.launch
 frontend/.settings/
-*.sublime-workspace
 
 # IDE - VSCode
 frontend/.vscode/*
@@ -96,3 +91,4 @@ frontend/Thumbs.db
 
 #/backend/key.json
 /frontend/.angular/
+/lib/
