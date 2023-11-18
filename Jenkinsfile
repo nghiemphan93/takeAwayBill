@@ -4,10 +4,10 @@ pipeline {
     agent any
     environment {
         DOCKER_CRED = credentials('docker-login')
-        DOCKER_USER = "${env.DOCKER_CRED_USR}"
-        DOCKER_PASS = "${env.DOCKER_CRED_PSW}"
+        DOCKER_USER = "${DOCKER_CRED_USR}"
+        DOCKER_PASS = "${DOCKER_CRED_PSW}"
+        dockerLoginCMD = "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin https://docker.nghiemphan.de/"
     }
-    def dockerLoginCMD = "echo $env.DOCKER_PASS | docker login -u $env.DOCKER_USER --password-stdin https://docker.nghiemphan.de/"
 
     stages {
         stage('test') {
