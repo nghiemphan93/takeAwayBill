@@ -18,4 +18,4 @@ EXPOSE 5005
 # copy project
 COPY . .
 
-ENTRYPOINT python manage.py run -h 0.0.0.0 --port=5005
+ENTRYPOINT python ./backend/manage.py run -h 0.0.0.0 --port=5005
