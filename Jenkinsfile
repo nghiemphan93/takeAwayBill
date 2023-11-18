@@ -28,6 +28,8 @@ pipeline {
                 script {
                     echo "Deploying the application"
                     sh 'ls -la'
+                    sh 'docker -v'
+                    sh 'docker pull nginx'
                     sshagent(['netcup-ssh']) {
                         java.lang.String dockerCMD = 'docker version'
                         echo "SSHing to netcup"
