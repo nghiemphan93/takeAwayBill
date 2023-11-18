@@ -7,6 +7,8 @@ pipeline {
         DOCKER_USER = "${env.DOCKER_CRED_USR}"
         DOCKER_PASS = "${env.DOCKER_CRED_PSW}"
     }
+    def dockerLoginCMD = "echo $env.DOCKER_PASS | docker login -u $env.DOCKER_USER --password-stdin https://docker.nghiemphan.de/"
+
     stages {
         stage('test') {
             when {
@@ -25,6 +27,7 @@ pipeline {
                 script {
                     echo "Building the application..."
                     echo "$env.DOCKER_USER"
+                    sh "bash ${dockerLoginCMD}"
                 }
             }
         }
@@ -49,7 +52,7 @@ pipeline {
                                 ]) {
                             echo USER
                             echo PASS
-                            def dockerLoginCMD = "echo $PASS | docker login -u $USER --password-stdin https://docker.nghiemphan.de/"
+//                            def dockerLoginCMD = "echo $PASS | docker login -u $USER --password-stdin https://docker.nghiemphan.de/"
                             sh "ssh -o StrictHostKeyCHecking=no nghiemphan.de ${dockerLoginCMD}"
                         }
                     }
