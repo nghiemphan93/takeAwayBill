@@ -13,7 +13,7 @@ RUN pip3 install --upgrade pip
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-EXPOSE 5055
+EXPOSE 5005
 
 # copy project
 COPY . .
