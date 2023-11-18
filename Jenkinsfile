@@ -29,7 +29,7 @@ pipeline {
                     echo "$DOCKER_USER"
                     echo "$DOCKER_PASS"
                     sh "${dockerLoginCMD}"
-                    sh "docker build -t docker.nghiemphan.de/admin/takeawaybill-backend:latest -f ./backend/Dockerfile"
+                    sh "docker build -t docker.nghiemphan.de/admin/takeawaybill-backend:latest -f ./backend/Dockerfile ."
                     sh "docker push docker.nghiemphan.de/admin/takeawaybill-backend:latest"
                 }
             }
