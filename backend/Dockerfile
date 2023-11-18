@@ -7,7 +7,8 @@ WORKDIR /usr/src/app
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
+ENV FLASK_APP project/__init__.py
+ENV FLASK_ENV development
 # install dependencies
 RUN pip3 install --upgrade pip
 COPY requirements.txt .

@@ -3,14 +3,15 @@ version: '3.7'
 services:
   backend:
     build: ./backend
-    command: python manage.py run -h 0.0.0.0 --port=5005
+    image: docker.nghiemphan.de/admin/takeawaybill-backend:latest
+    #    command: python manage.py run -h 0.0.0.0 --port=5005
     restart: always
     ports:
       - 5005:5005
     env_file:
       - ./.env.dev
-    volumes:
-      - ./backend:/usr/src/app
+#    volumes:
+#      - ./backend:/usr/src/app
 
 #  frontend:
 #    depends_on:
