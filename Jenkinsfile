@@ -26,8 +26,9 @@ pipeline {
             steps {
                 script {
                     echo "Building the application..."
-                    echo "$env.DOCKER_USER"
-                    sh "bash ${dockerLoginCMD}"
+                    echo "$DOCKER_USER"
+                    echo "$DOCKER_PASS"
+                    sh "${dockerLoginCMD}"
                 }
             }
         }
