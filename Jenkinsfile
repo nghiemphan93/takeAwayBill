@@ -24,7 +24,7 @@ pipeline {
             steps {
                 script {
                     echo "Building the application..."
-                    echo $env.DOCKER_USER
+                    echo "{$env.DOCKER_USER}"
                 }
             }
         }
