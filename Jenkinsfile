@@ -4,8 +4,8 @@ pipeline {
     agent any
     environment {
         DOCKER_CRED = credentials('docker-login')
-        DOCKER_USER = env.DOCKER_CRED_USR
-        DOCKER_PASS = env.DOCKER_CRED_PSW
+        DOCKER_USER = "${env.DOCKER_CRED_USR}"
+        DOCKER_PASS = "${env.DOCKER_CRED_PSW}"
     }
     stages {
         stage('test') {
