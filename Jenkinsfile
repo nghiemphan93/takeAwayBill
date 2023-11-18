@@ -29,8 +29,8 @@ pipeline {
                     echo "$DOCKER_USER"
                     echo "$DOCKER_PASS"
                     sh "${dockerLoginCMD}"
-                    sh "docker build -t https://docker.nghiemphan.de/takeAwayBill-backend:latest ./backend/Dockerfile "
-                    sh "docker push https://docker.nghiemphan.de/:latest"
+                    sh "docker build -t https://docker.nghiemphan.de/takeAwayBill-backend ./backend/Dockerfile "
+                    sh "docker push https://docker.nghiemphan.de/takeAwayBill-backend"
                 }
             }
         }
