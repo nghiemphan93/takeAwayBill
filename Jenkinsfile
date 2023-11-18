@@ -27,6 +27,7 @@ pipeline {
             steps {
                 script {
                     echo "Deploying the application"
+                    sh 'ls -la'
                     sshagent(['netcup-ssh']) {
                         java.lang.String dockerCMD = 'docker version'
                         echo "SSHing to netcup"
