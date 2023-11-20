@@ -15,8 +15,8 @@ spec:
       containers:
         - name: takeawaybill
           image: docker.nghiemphan.de/admin/takeawaybill-backend:latest
-          command:
-            - python manage.py run -h 0.0.0.0 --port=5005
+          #          command:
+          #            - python manage.py run -h 0.0.0.0 --port=5005
           env:
             - name: FLASK_APP
               value: project/__init__.py
