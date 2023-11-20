@@ -2,12 +2,15 @@ version: '3.7'
 
 services:
   backend:
-    build: ./backend
+    #    build: ./backend
     image: docker.nghiemphan.de/admin/takeawaybill-backend:latest
     #    command: python manage.py run -h 0.0.0.0 --port=5005
+    command: gunicorn backend.project:app
+    entrypoint: gunicorn backend.project:app
     restart: always
     ports:
       - 5005:5005
+      - 8000:8000
     env_file:
       - ./.env.dev
 #    volumes:
@@ -22,4 +25,4 @@ services:
 #    ports:
 #      - 4205:4205
 #    volumes:
-#    - ./frontend:/usr/src/app
+#    - ./frontend:/usr/src
