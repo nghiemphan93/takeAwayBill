@@ -56,6 +56,7 @@ pipeline {
                             echo PASS
 //                            def dockerLoginCMD = "echo $PASS | docker login -u $USER --password-stdin https://docker.nghiemphan.de/"
                             sh "ssh -o StrictHostKeyCHecking=no nghiemphan.de ${dockerLoginCMD}"
+                            sh deploy.sh
                         }
                     }
                 }
