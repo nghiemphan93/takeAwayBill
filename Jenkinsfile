@@ -37,7 +37,7 @@ pipeline {
         stage('deploy') {
             steps {
                 script {
-                    echo "Deploying the application"
+                    echo "Deploying the application..."
                     sh 'ls -la'
                     sh 'docker -v'
                     sshagent(['VM_USERNAME_PRIVATE_KEY']) {
