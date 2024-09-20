@@ -14,7 +14,7 @@ export class TakeAwayToken {
   providedIn: 'root',
 })
 export class AuthService {
-  baseUrl = 'https://take-away-bill.herokuapp.com';
+  baseUrl = 'https://takeawaybill.nghiemphan.de';
   isAuth = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient, private router: Router) {
