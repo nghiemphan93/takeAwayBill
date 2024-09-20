@@ -55,7 +55,7 @@ pipeline {
                             echo USER
                             echo PASS
                             sh "ssh -o StrictHostKeyChecking=no root@nghiemphan.de ${dockerLoginCMD}"
-                            sh "scp ./k8s/*.yaml StrictHostKeyChecking=no root@nghiemphan.de:~/projects/takeawaybill/"
+                            sh "scp ./k8s/*.yaml root@nghiemphan.de:~/projects/takeawaybill/"
                             deployK8sCMD = "kubectl apply -f ~/projects/takeawaybill/"
                             sh "ssh -o StrictHostKeyChecking=no root@ghiemphan.de ${deployK8sCMD}"
                         }
