@@ -25,6 +25,8 @@ spec:
           #              value: development
           ports:
             - containerPort: 5005
+      imagePullSecrets:
+        - name: regcred
 
 ---
 
