@@ -3,7 +3,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_CRED = credentials('docker-login')
+        DOCKER_CRED = credentials('DOCKER_USERNAME_PASS')
         DOCKER_USER = "${DOCKER_CRED_USR}"
         DOCKER_PASS = "${DOCKER_CRED_PSW}"
         dockerLoginCMD = "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin https://docker.nghiemphan.de/"
@@ -41,14 +41,14 @@ pipeline {
                     sh 'ls -la'
                     sh 'docker -v'
                     sh 'docker pull nginx'
-                    sshagent(['netcup-ssh']) {
+                    sshagent(['VM_PRIVATE_KEY']) {
                         java.lang.String dockerCMD = 'docker version'
                         echo "SSHing to netcup"
                         sh "ssh -o StrictHostKeyCHecking=no nghiemphan.de ${dockerCMD}"
 
                         withCredentials(
                                 [usernamePassword(
-                                        credentialsId: 'docker-login',
+                                        credentialsId: 'DOCKER_USERNAME_PASS',
                                         usernameVariable: 'USER',
                                         passwordVariable: 'PASS'
                                 )
