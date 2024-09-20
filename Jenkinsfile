@@ -41,8 +41,8 @@ pipeline {
                     sh 'ls -la'
                     sh 'docker -v'
                     sshagent(['VM_USERNAME_PRIVATE_KEY']) {
-                        java.lang.String dockerCMD = 'docker version'
-                        echo "SSHing to netcup"
+                        def dockerCMD = 'docker version'
+                        echo "SSHing to vm"
                         sh "ssh -o StrictHostKeyChecking=no root@nghiemphan.de ${dockerCMD}"
 
                         withCredentials(
