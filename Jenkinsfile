@@ -43,7 +43,7 @@ pipeline {
                     sshagent(['VM_USERNAME_PRIVATE_KEY']) {
                         java.lang.String dockerCMD = 'docker version'
                         echo "SSHing to netcup"
-                        sh "ssh -o StrictHostKeyCHecking=no nghiemphan.de ${dockerCMD}"
+                        sh "ssh -o StrictHostKeyChecking=no root@nghiemphan.de ${dockerCMD}"
 
                         withCredentials(
                                 [usernamePassword(
@@ -51,12 +51,14 @@ pipeline {
                                         usernameVariable: 'USER',
                                         passwordVariable: 'PASS'
                                 )
-                                ]) {
+                        ]) {
                             echo USER
                             echo PASS
-//                            def dockerLoginCMD = "echo $PASS | docker login -u $USER --password-stdin https://docker.nghiemphan.de/"
-                            sh "ssh -o StrictHostKeyCHecking=no nghiemphan.de ${dockerLoginCMD}"
-                            sh deploy.sh
+                            sh "ssh -o StrictHostKeyChecking=no root@ghiemphan.de ${dockerLoginCMD
+                        }"
+                            sh "scp ./k8s/*.yaml StrictHostKeyChecking=no root@nghiemphan.de:~/projects/takeawaybill/"
+                            deployK8sCMD = "kubectl apply -f ~/projects/takeawaybill/"
+                            sh "ssh -o StrictHostKeyChecking=no root@ghiemphan.de ${deployK8sCMD}"
                         }
                     }
                 }
