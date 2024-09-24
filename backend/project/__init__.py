@@ -1,5 +1,7 @@
 import atexit
 import os
+
+os.environ['TZ'] = 'Europe/Berlin'
 from datetime import timedelta
 from threading import Thread
 from typing import List, Dict

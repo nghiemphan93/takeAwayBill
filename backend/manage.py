@@ -1,5 +1,7 @@
+import os
 from flask.cli import FlaskGroup
 
+os.environ['TZ'] = 'Europe/Berlin'
 
 cli = FlaskGroup()
 
