@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerService } from '../../services/spinner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 import moment from 'moment';
 
 @Component({
@@ -45,7 +45,7 @@ export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
     let isTokenValid = false;
 
     try {
-      const decodedToken = jwt_decode(newRefreshToken) as any;
+      const decodedToken = jwtDecode(newRefreshToken) as any;
       const diffToNow = moment
         .duration(moment.unix(decodedToken.exp).diff(moment().toDate()))
         .asMinutes();

@@ -2,7 +2,7 @@ import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
 import moment from 'moment';
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 import { Router } from '@angular/router';
 
 export class TakeAwayToken {
@@ -132,7 +132,7 @@ export class AuthService {
    */
   calculateDuration(token: string | undefined): number {
     if (token) {
-      const decodedToken = jwt_decode(token) as any;
+      const decodedToken = jwtDecode(token) as any;
       return moment.unix(decodedToken.exp).diff(moment().toDate());
     }
     return 0;

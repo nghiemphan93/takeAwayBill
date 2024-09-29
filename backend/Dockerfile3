@@ -1,0 +1,30 @@
+# pull official base image
+FROM python:3.12.0-alpine AS builder
+
+# set work directory
+WORKDIR /app
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    FLASK_APP=project/__init__.py \
+    FLASK_ENV=development
+
+# install build dependencies
+RUN apk add --no-cache build-base
+
+# copy only requirements file to leverage Docker cache
+COPY ./requirements.txt /app/requirements.txt
+
+# install dependencies
+RUN pip3 install --upgrade pip setuptools wheel && \
+    pip3 install --no-cache-dir -r requirements.txt
+
+# copy project files
+COPY . /app
+
+# expose port
+EXPOSE 5005
+
+# set entrypoint
+ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:5005", "project:app"]

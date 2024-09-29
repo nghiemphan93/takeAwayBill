@@ -12,14 +12,16 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV FLASK_APP project/__init__.py
 ENV FLASK_ENV development
+RUN apk add --no-cache build-base
 
 EXPOSE 5005
 
-# install dependencies
+RUN pip3 install --upgrade pip
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
 COPY ./backend/ .
-RUN pip3 install --upgrade pip && \
-    pip3 install --upgrade setuptools wheel && \
-    pip3 install --no-cache-dir --upgrade -r requirements.txt
+
 
 #ENTRYPOINT python ./backend/manage.py run -h 0.0.0.0 --port=5005
 ENTRYPOINT gunicorn -b 0.0.0.0:5005 project:app
