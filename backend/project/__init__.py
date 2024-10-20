@@ -141,10 +141,10 @@ def get_new_tokens() -> Token:
     return Token(response.get('access_token'), response.get('refresh_token'))
 
 
-@scheduler.task("interval", id="do_update_refresh_token", hours=6)
-@cross_origin()
-def get_new_tokens_scheduler() -> Token:
-    return get_new_tokens()
+# @scheduler.task("interval", id="do_update_refresh_token", hours=6)
+# @cross_origin()
+# def get_new_tokens_scheduler() -> Token:
+#     return get_new_tokens()
 
 
 @app.route("/", methods=['GET'])
