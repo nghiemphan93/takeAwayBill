@@ -2,7 +2,7 @@ import atexit
 import os
 
 os.environ['TZ'] = 'Europe/Berlin'
-from datetime import timedelta
+from datetime import timedelta, datetime
 from threading import Thread
 from typing import List, Dict
 
@@ -150,6 +150,8 @@ def get_new_tokens() -> Token:
 @app.route("/", methods=['GET'])
 @cross_origin()
 def helloWorld():
+    now = datetime.now()
+    print(f'server works, current time: {now}')
     return jsonify(message='server works...')
 
 
