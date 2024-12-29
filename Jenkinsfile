@@ -42,7 +42,7 @@ pipeline {
                     echo "Updating k8s/backend.yaml with new image tag..."
                     sh "pwd"
                     sh "ls -la ./k8s"
-                    changeImageYaml = "sed -i "" "s|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g" ./k8s/backend.yaml"
+//                     changeImageYaml = "sed -i "" "s|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g" ./k8s/backend.yaml"
                     sh """
                         sed -i '' 's|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g' ./k8s/backend.yaml
                     """
