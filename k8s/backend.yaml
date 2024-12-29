@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: takeawaybill
-          image: docker.nghiemphan.de/admin/takeawaybill-backend:20241229_165610
+          image: docker.nghiemphan.de/admin/takeawaybill-backend:20241229_165625
           #          command:
           #            - python manage.py run -h 0.0.0.0 --port=5005
           #            - gunicorn -b 0.0.0.0:5005 backend.project:app
