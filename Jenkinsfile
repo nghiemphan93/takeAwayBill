@@ -44,7 +44,7 @@ pipeline {
                     sh "ls -la ./k8s"
 //                     changeImageYaml = "sed -i "" "s|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g" ./k8s/backend.yaml"
                     sh """
-                        sed -i \\'''\' \\'s|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g\\' ./k8s/backend.yaml
+                        sed -i \\''\\' \\'s|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g\\' ./k8s/backend.yaml
                     """
                     sh "git add k8s/backend.yaml"
                     sh "git commit -m 'Update backend image tag to ${BUILD_HASH}'"
