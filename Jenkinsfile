@@ -11,6 +11,12 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+                steps {
+                    scmSkip(deleteBuild: true, skipPattern:'.*\\[ci skip\\].*')
+                }
+            }
+
         stage('test') {
             when {
                 expression {
@@ -23,6 +29,7 @@ pipeline {
                 }
             }
         }
+
         stage('build') {
             steps {
                 script {
