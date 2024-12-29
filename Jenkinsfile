@@ -7,6 +7,7 @@ pipeline {
         DOCKER_USER = "${DOCKER_CRED_USR}"
         DOCKER_PASS = "${DOCKER_CRED_PSW}"
         dockerLoginCMD = "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin https://docker.nghiemphan.de/"
+        BUILD_HASH = sh(script: "date +\"%Y%m%d_%H%M%S\"", returnStdout: true).trim()
     }
 
     stages {
@@ -29,11 +30,24 @@ pipeline {
                     echo "$DOCKER_USER"
                     echo "$DOCKER_PASS"
                     sh "${dockerLoginCMD}"
-                    sh "docker build -t docker.nghiemphan.de/admin/takeawaybill-backend:latest -f ./backend/Dockerfile ."
-                    sh "docker push docker.nghiemphan.de/admin/takeawaybill-backend:latest"
+                    sh "docker build -t docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH} -f ./backend/Dockerfile ."
+                    sh "docker push docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}"
                 }
             }
         }
+
+        stage('update-k8s') {
+            steps {
+                script {
+                    echo "Updating k8s/backend.yaml with new image tag..."
+                    sh "sed -i '' 's|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g' k8s/backend.yaml"
+                    sh "git add k8s/backend.yaml"
+                    sh "git commit -m 'Update backend image tag to ${BUILD_HASH}'"
+                    sh "git push origin main"
+                }
+            }
+        }
+
         stage('deploy') {
             steps {
                 script {
