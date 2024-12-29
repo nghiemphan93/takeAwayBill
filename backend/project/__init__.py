@@ -234,21 +234,22 @@ def getOrdersByDate():
         sortColumn = 'createdAt'
 
     tempDate = pd.to_datetime(date, format='%Y-%m-%d')
+    dayOfYear = tempDate.dayofyear
     if tempDate.dayofweek == 6:
         tempDate = tempDate + timedelta(days=1)
     tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
     year = tempDate.date().year
-    weekNumber = tempDate.isocalendar()[1]
 
+    print(dayOfYear)
     result = requests.get(
-        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=week&year={year}&number={weekNumber}',
+        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}',
         headers={"Authorization": f'Bearer {access_token}'})
     totalPages = result.json().get('meta').get('total_pages')
 
     # combine all dfs
     threads = []
     for page in range(1, totalPages + 1):
-        threads.append(ThreadWithReturnValue(target=createSingleDf, args=(access_token, year, weekNumber, page,)))
+        threads.append(ThreadWithReturnValue(target=createSingleDf, args=(access_token, year, dayOfYear, page,)))
         threads[page - 1].start()
 
     dfs = []
@@ -273,6 +274,7 @@ def getOrdersByDate():
         billsDf = billsDf[['createdAt', 'orderCode', 'postcode', 'price', 'paidOnline']]
         billsDf = billsDf.sort_values(by=sortColumn, ascending=True and sortDirection == 'asc')
 
+        print(f'got {len(billsDf)} orders')
         return jsonify(billsDf.to_dict(orient='records')), 200
     else:
         return jsonify([]), 200
@@ -357,8 +359,8 @@ class ThreadWithReturnValue(Thread):
         return self._return
 
 
-def createSingleDf(token: str, year: int, weekNumber: int, page: int) -> pd.DataFrame:
+def createSingleDf(token: str, year: int, dayOfYear: int, page: int) -> pd.DataFrame:
     result = requests.get(
-        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=week&year={year}&number={weekNumber}&page={page}',
+        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}&page={page}',
         headers={"Authorization": f'Bearer {token}'})
     return pd.DataFrame(result.json().get('data').get('orders'))
