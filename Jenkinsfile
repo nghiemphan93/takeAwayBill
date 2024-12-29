@@ -47,7 +47,7 @@ pipeline {
                         sh "ls -la ./k8s"
                         sh "sed -i 's|image: docker.nghiemphan.de/admin/takeawaybill-backend:.*|image: docker.nghiemphan.de/admin/takeawaybill-backend:${BUILD_HASH}|g' ./k8s/backend.yaml"
                         sh "git add k8s/backend.yaml"
-                        sh "git commit -m 'Update backend image tag to ${BUILD_HASH}'"
+                        sh "git commit -m '[ci skip] Update backend image tag to ${BUILD_HASH}'"
                         sh "git push origin HEAD:main"
                     }
                 }
