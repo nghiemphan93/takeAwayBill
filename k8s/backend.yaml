@@ -25,6 +25,10 @@ spec:
           #              value: development
           ports:
             - containerPort: 5005
+          volumeMounts:
+            - name: firebase-creds
+              mountPath: /app/secrets
+              readOnly: true
           livenessProbe:
             httpGet:
               path: /
@@ -33,6 +37,10 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+      volumes:
+        - name: firebase-creds
+          secret:
+            secretName: firebase-credentials
       imagePullSecrets:
         - name: regcred
 

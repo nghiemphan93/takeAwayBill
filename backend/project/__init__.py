@@ -1,5 +1,6 @@
-import atexit
 import os
+
+import atexit
 
 os.environ['TZ'] = 'Europe/Berlin'
 from datetime import timedelta, datetime
@@ -33,8 +34,10 @@ scheduler.start()
 atexit.register(lambda: scheduler.shutdown())
 
 # Use a service account
-print(os.path.dirname(__file__) + './key.json')
-cred = credentials.Certificate(cert=os.path.dirname(__file__) + '/key.json')
+firebase_key_path = os.getenv('FIREBASE_KEY_PATH', '/app/secrets/key.json')
+if not os.path.exists(firebase_key_path):
+    firebase_key_path = os.path.join(os.path.dirname(__file__), 'key.json')
+cred = credentials.Certificate(cert=firebase_key_path)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
