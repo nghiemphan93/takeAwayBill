@@ -6,3 +6,6 @@ gunicorn==21.2.0
 cloudscraper==1.2.71
 firebase-admin==6.2.0
 Flask-APScheduler==1.13.1
+flask_sqlalchemy==3.1.1
+psycopg2-binary==2.9.12
+Flask-Migrate==4.1.0

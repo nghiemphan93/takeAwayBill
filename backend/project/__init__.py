@@ -1,6 +1,5 @@
-import os
-
 import atexit
+import os
 
 os.environ['TZ'] = 'Europe/Berlin'
 from datetime import timedelta, datetime
@@ -8,15 +7,13 @@ from threading import Thread
 from typing import List, Dict
 
 import cloudscraper
-import firebase_admin
 import pandas as pd
 import requests
-from firebase_admin import credentials
-from firebase_admin import firestore
-from flask import Flask, jsonify, request
+from flask import jsonify, request, Flask
 from flask_apscheduler import APScheduler
 from flask_cors import cross_origin
-from google.cloud.firestore_v1 import DocumentReference, DocumentSnapshot
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 
 # set configuration values
@@ -33,13 +30,31 @@ scheduler.start()
 # Shut down the scheduler when exiting the app
 atexit.register(lambda: scheduler.shutdown())
 
-# Use a service account
-firebase_key_path = os.getenv('FIREBASE_KEY_PATH', '/app/secrets/key.json')
-if not os.path.exists(firebase_key_path):
-    firebase_key_path = os.path.join(os.path.dirname(__file__), 'key.json')
-cred = credentials.Certificate(cert=firebase_key_path)
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT', '5432')
+DB_NAME = os.getenv('DB_NAME')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+db = SQLAlchemy(app)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+migrate = Migrate(app, db)
+
+
+class Auth(db.Model):
+    __tablename__ = 'auth'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)  # Nên lưu hash password
+    access_token = db.Column(db.Text, nullable=True)
+    refresh_token = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    def __repr__(self):
+        return f'<Auth {self.username}>'
 
 
 class Customer:
@@ -124,10 +139,10 @@ class User:
 
 
 def get_new_tokens() -> Token:
-    print("Updating refresh token")
-    token_ref: DocumentReference = db.collection('collection').document('token')
-    token_doc: DocumentSnapshot = token_ref.get()
-    token = Token.from_dict(token_doc.to_dict())
+    print("Getting new access token")
+    auth = Auth.query.get(1)
+    print(auth.access_token, auth.refresh_token)
+    token = Token(auth.access_token, auth.refresh_token)
 
     scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
     result = scraper.post(
@@ -139,8 +154,10 @@ def get_new_tokens() -> Token:
         })
     response: Dict = result.json()
     if response.get('access_token') is not None and response.get('refresh_token') is not None:
-        db.collection('collection').document('token').set(
-            {'access_token': response.get('access_token'), 'refresh_token': response.get('refresh_token')})
+        auth.access_token = response.get('access_token')
+        auth.refresh_token = response.get('refresh_token')
+        db.session.commit()
+
     return Token(response.get('access_token'), response.get('refresh_token'))
 
 
@@ -164,13 +181,9 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    user_ref: DocumentReference = db.collection('collection').document('user')
-    user_doc: DocumentSnapshot = user_ref.get()
-    user = User.from_dict(user_doc.to_dict())
-
-    token_ref: DocumentReference = db.collection('collection').document('token')
-    token_doc: DocumentSnapshot = token_ref.get()
-    token = Token.from_dict(token_doc.to_dict())
+    auth = Auth.query.get(1)
+    user = User(auth.username, auth.password)
+    token = Token(auth.access_token, auth.refresh_token)
 
     if username == user.username and password == user.password:
         return jsonify(accessToken=token.access_token, refreshToken=token.refresh_token), 200
@@ -181,7 +194,7 @@ def login():
 @app.route("/generate-new-tokens", methods=['GET'])
 @cross_origin()
 def generate_new_tokens():
-    print('generating new tokkens...')
+    print('generating new tokens...')
     try:
         token: Token = get_new_tokens()
         return jsonify(accessToken=token.access_token, refreshToken=token.refresh_token), 200
@@ -196,16 +209,12 @@ def update_refresh_token():
     newRefreshToken = request.form.get('newRefreshToken')
     try:
         if newRefreshToken is not None:
-            token_ref: DocumentReference = db.collection('collection').document('token')
-            token_doc: DocumentSnapshot = token_ref.get()
-            oldToken: Token = Token.from_dict(token_doc.to_dict())
+            auth = Auth.query.get(1)
+            oldToken: Token = Token(auth.access_token, auth.refresh_token)
+            auth.refresh_token = newRefreshToken
+            auth.access_token = oldToken.access_token
+            db.session.commit()
 
-            db.collection('collection').document('token').set(
-                {
-                    'refresh_token': newRefreshToken,
-                    'access_token': oldToken.access_token,
-                }
-            )
             return jsonify(message='refreshToken updated successfully'), 200
         else:
             return jsonify(message='refreshToken updated  unsuccessfully'), 401
@@ -246,7 +255,9 @@ def getOrdersByDate():
     print(dayOfYear)
     result = requests.get(
         f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}',
-        headers={"Authorization": f'Bearer {access_token}'})
+        headers={"Authorization": f'Bearer {access_token}'},
+        timeout=10
+    )
     totalPages = result.json().get('meta').get('total_pages')
 
     # combine all dfs

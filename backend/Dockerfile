@@ -8,10 +8,10 @@ FROM python:3.12.0-alpine AS builder
 WORKDIR /app
 
 # set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV FLASK_APP project/__init__.py
-ENV FLASK_ENV development
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_APP=project/__init__.py
+ENV FLASK_ENV=development
 RUN apk add --no-cache build-base
 
 EXPOSE 5005
@@ -24,4 +24,4 @@ COPY ./backend/ .
 
 
 #ENTRYPOINT python ./backend/manage.py run -h 0.0.0.0 --port=5005
-ENTRYPOINT gunicorn -b 0.0.0.0:5005 project:app
+CMD ["gunicorn", "-b", "0.0.0.0:5005", "project:app"]
