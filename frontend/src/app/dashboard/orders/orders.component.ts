@@ -1,23 +1,45 @@
 import { Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { firstValueFrom, Observable, Subscription } from 'rxjs';
 import { OrderCriteria } from '../../models/orderCriteria';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { Order } from '../../models/Order';
-import { MatTableDataSource } from '@angular/material/table';
-import { FormControl, FormGroup } from '@angular/forms';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DownloadService } from '../../services/download.service';
 import { SpinnerService } from '../../services/spinner.service';
-import { MatDatepicker } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerInput,
+  MatDatepickerToggle,
+} from '@angular/material/datepicker';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as moment from 'moment';
+import moment from 'moment';
+import { MatIcon } from '@angular/material/icon';
+import { CurrencyPipe, DatePipe, NgStyle } from '@angular/common';
+import { MatFormField, MatInput } from '@angular/material/input';
 
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
+  standalone: true,
+  imports: [
+    MatIcon,
+    NgStyle,
+    MatFormField,
+    MatDatepicker,
+    MatDatepickerToggle,
+    ReactiveFormsModule,
+    MatDatepickerInput,
+    CurrencyPipe,
+    MatTableModule,
+    MatSortModule,
+    DatePipe,
+    MatInput,
+  ],
 })
 export class OrdersComponent implements OnInit, OnDestroy {
   loadedOrders: Order[] = [];
@@ -46,23 +68,25 @@ export class OrdersComponent implements OnInit, OnDestroy {
   router: Router = inject(Router);
 
   constructor(
-    private authService: AuthService,
-    private orderService: OrderService,
-    private downloadService: DownloadService,
-    private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar,
+    private readonly authService: AuthService,
+    private readonly orderService: OrderService,
+    private readonly downloadService: DownloadService,
+    private readonly spinnerService: SpinnerService,
+    private readonly matSnackBar: MatSnackBar,
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    void this.initializeOrders();
+  }
+
+  private async initializeOrders(): Promise<void> {
     this.isAuth$ = this.authService.getAuth();
     const chosenDate: string = this.activatedRoute.snapshot.params?.chosenDate;
-    if (chosenDate) {
-      this.datePickerForm.setValue({ chosenDate: new Date(chosenDate) });
-      await this.stickDateToUrl(new Date(chosenDate));
-    } else {
-      this.datePickerForm.setValue({ chosenDate: new Date() });
-      await this.stickDateToUrl(new Date());
-    }
+    const parsedDate = chosenDate
+      ? moment(chosenDate, 'YYYY-MM-DD', true).toDate()
+      : new Date();
+    this.datePickerForm.setValue({ chosenDate: parsedDate });
+    await this.stickDateToUrl(parsedDate);
     await this.onDateChanged(this.datePickerForm.value.chosenDate);
   }
 
@@ -154,31 +178,25 @@ export class OrdersComponent implements OnInit, OnDestroy {
       currency: 'EUR',
     });
 
-    const headers = [];
-    headers.push(`Einzelauflistung`);
-    headers.push(`Restaurant: Goldene Drachen `);
-    headers.push(
+    const headers = [
+      `Einzelauflistung`,
+      `Restaurant: Goldene Drachen `,
       `Datum: ${this.formatTimeGerman(this.datePickerForm.value.chosenDate)}`,
-    );
+    ];
 
-    const sums: Array<string> = [];
-    sums.push(
+    const sums: Array<string> = [
       `Gesamt: \t\t\t\t ${
         this.numbOnlineOrders + this.numbOfflineOrders
       } Bestellungen im Wert von ${formatter.format(
         this.onlineRevenues + this.offlineRevenues,
       )}`,
-    );
-    sums.push(
       `Online bezahlt*: \t${
         this.numbOnlineOrders
       } Bestellungen im Wert von ${formatter.format(this.onlineRevenues)}`,
-    );
-    sums.push(
       `Bargeld bezahlt: \t${
         this.numbOfflineOrders
       } Bestellungen im Wert von ${formatter.format(this.offlineRevenues)}`,
-    );
+    ];
 
     try {
       this.spinnerService.show();

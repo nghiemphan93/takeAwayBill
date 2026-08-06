@@ -14,13 +14,17 @@
           Datum
         </mat-header-cell>
         <mat-cell *matCellDef="let element">
-          <span *ngIf="isSummerTime(element.placedDate)">
-            {{ element.placedDate | date: "shortTime":"UTC+0" }}
-          </span>
+          @if (isSummerTime(element.placedDate)) {
+            <span>
+              {{ element.placedDate | date: "shortTime" : "UTC+0" }}
+            </span>
+          }
 
-          <span *ngIf="!isSummerTime(element.placedDate)">
-            {{ element.placedDate | date: "shortTime":"UTC+1" }}
-          </span>
+          @if (!isSummerTime(element.placedDate)) {
+            <span>
+              {{ element.placedDate | date: "shortTime" : "UTC+1" }}
+            </span>
+          }
         </mat-cell>
       </ng-container>
 
@@ -61,9 +65,9 @@
           Bezahlt?
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element">
-          <span *ngIf="element.paymentType === 'online'">
+          @if (element.paymentType === "online") {
             <mat-icon [ngStyle]="{ color: '#009688' }">check_circle</mat-icon>
-          </span>
+          }
         </mat-cell>
       </ng-container>
 

@@ -8,23 +8,17 @@
     </div>
 
     <div>
-      <button
-        *ngIf="(isAuth$ | async) === false"
-        mat-flat-button
-        color="primary"
-        routerLink="/login"
-      >
-        Log In
-      </button>
+      @if ((isAuth$ | async) === false) {
+        <button mat-flat-button color="primary" routerLink="/login">
+          Log In
+        </button>
+      }
 
-      <button
-        *ngIf="(isAuth$ | async) === true"
-        mat-flat-button
-        color="primary"
-        (click)="onLogOut()"
-      >
-        Log Out
-      </button>
+      @if ((isAuth$ | async) === true) {
+        <button mat-flat-button color="primary" (click)="onLogOut()">
+          Log Out
+        </button>
+      }
     </div>
   </section>
 </mat-toolbar>

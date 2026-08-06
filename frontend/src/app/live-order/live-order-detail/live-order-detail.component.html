@@ -3,41 +3,44 @@
     <strong>{{ data.customer.fullName }}</strong>
   </p>
   <p>{{ data.customer.street }} {{ data.customer.streetNumber }}</p>
-  <p *ngIf="data.customer.extra">{{ data.customer.extra }}</p>
+  @if (data.customer.extra) {
+    <p>{{ data.customer.extra }}</p>
+  }
   <p>{{ data.customer.postcode }}, {{ data.customer.city }}</p>
   <p>Tel: {{ data.customer.phoneNumber }}</p>
 
   <hr />
 
   <section class="pt-5">
-    <div class="mb-1" *ngFor="let product of data.products">
-      <div class="flex justify-between">
-        <span>
-          <strong>{{ product.quantity }}</strong> x {{ product.name
-          }}<span *ngIf="product.code">
-            (<strong>#{{ product.code }}</strong
-            >)</span
-          >
-        </span>
+    @for (product of data.products; track product) {
+      <div class="mb-1">
+        <div class="flex justify-between">
+          <span>
+            <strong>{{ product.quantity }}</strong> x {{ product.name }}
+            @if (product.code) {
+              (<strong>#{{ product.code }}</strong
+              >)
+            }
+          </span>
 
-        <span>
-          {{ product.totalAmount | currency: "EUR" }}
-        </span>
+          <span>
+            {{ product.totalAmount | currency: "EUR" }}
+          </span>
+        </div>
+
+        @for (specification of product.specifications; track specification) {
+          <div class="flex justify-between">
+            <span class="ml-6" nz-typography nzType="secondary"
+              >+ {{ specification.name }}</span
+            >
+
+            <span>
+              {{ specification.totalAmount | currency: "EUR" }}
+            </span>
+          </div>
+        }
       </div>
-
-      <div
-        class="flex justify-between"
-        *ngFor="let specification of product.specifications"
-      >
-        <span class="ml-6" nz-typography nzType="secondary"
-          >+ {{ specification.name }}</span
-        >
-
-        <span>
-          {{ specification.totalAmount | currency: "EUR" }}
-        </span>
-      </div>
-    </div>
+    }
   </section>
 
   <section class="">

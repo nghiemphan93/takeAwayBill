@@ -1,17 +1,26 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { firstValueFrom, Observable, Subscription } from 'rxjs';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerService } from '../../services/spinner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import moment from 'moment';
+import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-update-refresh-token',
   templateUrl: './update-refresh-token.component.html',
   styleUrls: ['./update-refresh-token.component.scss'],
+  standalone: true,
+  imports: [MatLabel, MatFormField, ReactiveFormsModule, MatButton, MatInput],
 })
 export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
   isAuth$ = new Observable<boolean>();
@@ -20,7 +29,7 @@ export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
   form = new FormGroup({
     newRefreshToken: new FormControl(
       { value: '', disabled: false },
-      Validators.required
+      Validators.required,
     ),
   });
   sub = new Subscription();
@@ -29,7 +38,7 @@ export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar
+    private matSnackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -62,7 +71,9 @@ export class UpdateRefreshTokenComponent implements OnInit, OnDestroy {
 
     if (isTokenValid) {
       try {
-        await this.authService.updateRefreshToken(newRefreshToken).toPromise();
+        await firstValueFrom(
+          this.authService.updateRefreshToken(newRefreshToken),
+        );
         await this.router.navigate(['dashboard']);
       } catch (e) {
         console.log(e);

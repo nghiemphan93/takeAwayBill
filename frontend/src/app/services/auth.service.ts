@@ -1,8 +1,8 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {BehaviorSubject, firstValueFrom, Observable} from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import moment from 'moment';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 
 export class TakeAwayToken {
@@ -17,7 +17,10 @@ export class AuthService {
   baseUrl = 'https://takeawaybill.nghiemphan.de';
   isAuth = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+  ) {
     if (isDevMode()) {
       this.baseUrl = 'http://localhost:5005';
     }
@@ -32,11 +35,10 @@ export class AuthService {
   }
 
   getTokens(): TakeAwayToken {
-    const token: TakeAwayToken = {
+    return {
       accessToken: localStorage.getItem('accessToken') || '',
       refreshToken: localStorage.getItem('refreshToken') || '',
     };
-    return token;
   }
 
   updateRefreshToken(newRefreshToken: string): Observable<string> {
@@ -78,8 +80,8 @@ export class AuthService {
     formData.append('username', username);
     formData.append('password', password);
 
-    const token: TakeAwayToken = await firstValueFrom(this.http
-      .post<TakeAwayToken>(`${this.baseUrl}/login`, formData)
+    const token: TakeAwayToken = await firstValueFrom(
+      this.http.post<TakeAwayToken>(`${this.baseUrl}/login`, formData),
     );
 
     this.setAuthenticated(token.accessToken, token.refreshToken);
@@ -94,8 +96,8 @@ export class AuthService {
   }
 
   async generateNewTokens(): Promise<TakeAwayToken> {
-    const token: TakeAwayToken = await firstValueFrom(this.http
-      .get<TakeAwayToken>(`${this.baseUrl}/generate-new-tokens`)
+    const token: TakeAwayToken = await firstValueFrom(
+      this.http.get<TakeAwayToken>(`${this.baseUrl}/generate-new-tokens`),
     );
     this.setAuthenticated(token.accessToken, token.refreshToken);
     return token;

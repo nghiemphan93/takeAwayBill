@@ -1,60 +1,57 @@
-import {Injectable} from '@angular/core';
-import {ComponentPortal} from '@angular/cdk/portal';
-import {MatSpinner} from '@angular/material/progress-spinner';
-import {distinctUntilChanged, map, scan} from 'rxjs/operators';
-import {Overlay, OverlayRef} from '@angular/cdk/overlay';
-import {Subject} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { ComponentPortal } from '@angular/cdk/portal';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { distinctUntilChanged, map, scan } from 'rxjs/operators';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { Subject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SpinnerService {
-  private spinnerTopRef: OverlayRef;
+  private readonly spinnerTopRef: OverlayRef;
+  private readonly spin$: Subject<number> = new Subject();
 
-  private spin$: Subject<number> = new Subject();
-
-  constructor(
-    private overlay: Overlay,
-  ) {
-
+  constructor(private readonly overlay: Overlay) {
     this.spinnerTopRef = this.overlay.create({
       hasBackdrop: true,
-      positionStrategy: this.overlay.position()
+      positionStrategy: this.overlay
+        .position()
         .global()
         .centerHorizontally()
-        .centerVertically()
+        .centerVertically(),
     });
 
     this.spin$
       .asObservable()
       .pipe(
         scan((acc, next) => {
-          if (!next) { return 0; }
-          return (acc + next) >= 0 ? acc + next : 0;
-        }, 0),
-        map(val => val > 0),
-        distinctUntilChanged()
-      )
-      .subscribe(
-        (res) => {
-          if (res) {
-            this.spinnerTopRef.attach(new ComponentPortal(MatSpinner));
-          } else if (this.spinnerTopRef.hasAttached()) {
-            this.spinnerTopRef.detach();
+          if (!next) {
+            return 0;
           }
+          return acc + next >= 0 ? acc + next : 0;
+        }, 0),
+        map((val) => val > 0),
+        distinctUntilChanged(),
+      )
+      .subscribe((res) => {
+        if (res) {
+          this.spinnerTopRef.attach(new ComponentPortal(MatProgressSpinner));
+        } else if (this.spinnerTopRef.hasAttached()) {
+          this.spinnerTopRef.detach();
         }
-      );
+      });
   }
 
-  show() {
+  show(): void {
     this.spin$.next(1);
   }
 
-  hide() {
+  hide(): void {
     this.spin$.next(-1);
   }
 
-  reset() {
+  reset(): void {
     this.spin$.next(0);
   }
 }

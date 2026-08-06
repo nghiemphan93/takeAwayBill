@@ -15,7 +15,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
 
 @NgModule({
-  declarations: [OrdersComponent],
+  declarations: [],
   imports: [
     CommonModule,
     DashboardRoutingModule,
@@ -29,6 +29,7 @@ import {MatIconModule} from '@angular/material/icon';
     MatInputModule,
     ReactiveFormsModule,
     MatIconModule,
-  ]
+    OrdersComponent,
+  ],
 })
-export class DashboardModule { }
+export class DashboardModule {}

@@ -1,10 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerService } from '../../services/spinner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AsyncPipe } from '@angular/common';
+import { MatInput } from '@angular/material/input';
+import { MatButton } from '@angular/material/button';
 
 const USERNAME = 'Golde8';
 
@@ -12,6 +20,8 @@ const USERNAME = 'Golde8';
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [AsyncPipe, ReactiveFormsModule, MatInput, MatButton],
 })
 export class LoginComponent implements OnInit, OnDestroy {
   isAuth$ = new Observable<boolean>();
@@ -20,7 +30,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginForm = new FormGroup({
     username: new FormControl(
       { value: USERNAME, disabled: true },
-      Validators.required
+      Validators.required,
     ),
     password: new FormControl('', Validators.required),
   });
@@ -30,7 +40,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar
+    private matSnackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -41,7 +51,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (isAuth) {
           await this.onToDashboard();
         }
-      })
+      }),
     );
   }
 

@@ -12,9 +12,9 @@ import { LiveOrder } from '../models/LiveOrder';
 })
 export class OrderService {
   constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private matSnackBar: MatSnackBar
+    private readonly http: HttpClient,
+    private readonly authService: AuthService,
+    private readonly matSnackBar: MatSnackBar,
   ) {}
 
   getOrders(criteria?: OrderCriteria): Observable<Order[]> {
@@ -25,13 +25,13 @@ export class OrderService {
 
     return this.http.post<Order[]>(
       `${this.authService.getBaseUrl()}/getOrdersByDate`,
-      formData
+      formData,
     );
   }
 
   getLiveOrders(): Observable<LiveOrder[]> {
     return this.http.get<LiveOrder[]>(
-      `${this.authService.getBaseUrl()}/getLiveOrders`
+      `${this.authService.getBaseUrl()}/getLiveOrders`,
     );
   }
 

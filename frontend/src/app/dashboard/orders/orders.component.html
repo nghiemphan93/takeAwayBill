@@ -77,9 +77,11 @@
           Online bezahlt
         </mat-header-cell>
         <mat-cell mat-cell *matCellDef="let element">
-          <span *ngIf="element.paidOnline === 1">
-            <mat-icon [ngStyle]="{'color':'#009688'}">check_circle</mat-icon>
-          </span>
+          @if (element.paidOnline === 1) {
+            <span>
+              <mat-icon [ngStyle]="{'color':'#009688'}">check_circle</mat-icon>
+            </span>
+          }
         </mat-cell>
       </ng-container>
 
@@ -88,7 +90,9 @@
     </mat-table>
   </main>
 
-  <aside *ngIf="(loadedOrders.length === 0)" class="container mx-auto my-10 flex justify-center items-center flex-col">
-    <h3>Keine Bestellungen für {{ formatTimeGerman(datePickerForm.value.chosenDate) }}</h3>
-  </aside>
+  @if (loadedOrders.length === 0) {
+    <aside class="container mx-auto my-10 flex justify-center items-center flex-col">
+      <h3>Keine Bestellungen für {{ formatTimeGerman(datePickerForm.value.chosenDate) }}</h3>
+    </aside>
+  }
 </section>

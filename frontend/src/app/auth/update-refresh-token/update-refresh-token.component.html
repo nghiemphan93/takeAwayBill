@@ -16,7 +16,9 @@
       />
     </mat-form-field>
 
-    <span class="text-red-500" *ngIf="error"> {{ error }} </span>
+    @if (error) {
+      <span class="text-red-500"> {{ error }} </span>
+    }
     <div class="flex justify-center">
       <button
         [disabled]="!form.valid"

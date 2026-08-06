@@ -1,22 +1,41 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { SpinnerService } from '../../services/spinner.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Observable, Subscription } from 'rxjs';
 import { LiveOrder } from '../../models/LiveOrder';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { LiveOrderDetailComponent } from '../live-order-detail/live-order-detail.component';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { StatusPipe } from '../../shared/pipes/status.pipe';
+import { CurrencyPipe, DatePipe, NgStyle } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-live-order',
   templateUrl: './live-order.component.html',
   styleUrls: ['./live-order.component.scss'],
+  imports: [
+    MatTableModule,
+    MatSortModule,
+    StatusPipe,
+    CurrencyPipe,
+    DatePipe,
+    NgStyle,
+    MatIcon,
+  ],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LiveOrderComponent implements OnInit, OnDestroy {
-  isVisibleMiddle = false;
   loadedOrders: LiveOrder[] = [];
   ordersDataSource = new MatTableDataSource<LiveOrder>();
   displayedColumns: string[] = [
@@ -29,19 +48,22 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
   ];
   isAuth$ = new Observable<boolean>();
   subscriptions = new Subscription();
-  expandedElement!: LiveOrder | null;
 
   @ViewChild(MatSort) sort?: MatSort;
 
   constructor(
-    private spinnerService: SpinnerService,
-    private matSnackBar: MatSnackBar,
-    private authService: AuthService,
-    private orderService: OrderService,
-    private modalService: NzModalService,
+    private readonly spinnerService: SpinnerService,
+    private readonly matSnackBar: MatSnackBar,
+    private readonly authService: AuthService,
+    private readonly orderService: OrderService,
+    private readonly modalService: NzModalService,
   ) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    void this.initializeLiveOrders();
+  }
+
+  private async initializeLiveOrders(): Promise<void> {
     this.isAuth$ = this.authService.getAuth();
     this.loadLiveOrders();
   }
@@ -50,6 +72,7 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.orderService.getLiveOrders().subscribe((liveOrders) => {
         this.loadedOrders = liveOrders;
+        console.log(this.loadedOrders);
         this.ordersDataSource.data = this.loadedOrders;
         if (liveOrders.length > 0) {
           // @ts-ignore
@@ -73,20 +96,8 @@ export class LiveOrderComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleCancelMiddle(): void {
-    this.isVisibleMiddle = false;
-  }
-
-  handleOkMiddle(): void {
-    console.log('click ok');
-    this.isVisibleMiddle = false;
-  }
-
   isSummerTime(date: Date): boolean {
     const currentMonth = new Date(date).getMonth() + 1;
-    if (currentMonth >= 4 && currentMonth <= 10) {
-      return true;
-    }
-    return false;
+    return currentMonth >= 4 && currentMonth <= 10;
   }
 }

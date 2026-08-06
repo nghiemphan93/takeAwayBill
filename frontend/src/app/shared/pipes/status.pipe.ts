@@ -3,6 +3,7 @@ import { LiveOrderStatus } from '../../models/LiveOrder';
 
 @Pipe({
   name: 'status',
+  standalone: true,
 })
 export class StatusPipe implements PipeTransform {
   transform(value: LiveOrderStatus, isShort = true): unknown {
