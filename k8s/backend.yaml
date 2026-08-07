@@ -12,43 +12,35 @@ spec:
       labels:
         app: takeawaybill
     spec:
-      #      initContainers:
-      #        - name: db-migration
-      #          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
-      #          command: [ "flask", "db", "upgrade" ]
-      #          env:
-      #            - name: FLASK_APP
-      #              value: project/__init__.py
-      #            - name: DB_HOST
-      #              value: "postgres-db-postgresql.postgres-db.svc.cluster.local"
-      #            - name: DB_PORT
-      #              value: "5432"
-      #            - name: DB_NAME
-      #              valueFrom:
-      #                secretKeyRef:
-      #                  name: postgres-credentials
-      #                  key: database-name
-      #            - name: DB_USER
-      #              valueFrom:
-      #                secretKeyRef:
-      #                  name: postgres-credentials
-      #                  key: app-username
-      #            - name: DB_PASSWORD
-      #              valueFrom:
-      #                secretKeyRef:
-      #                  name: postgres-credentials
-      #                  key: app-password
+      initContainers:
+        - name: db-migration
+          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
+          command: [ "flask", "db", "upgrade" ]
+          env:
+            - name: FLASK_APP
+              value: project/__init__.py
+            - name: DB_HOST
+              value: "postgres-db-postgresql.postgres-db.svc.cluster.local"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: database-name
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: app-username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: app-password
       containers:
         - name: takeawaybill
           image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
-          #          command:
-          #            - python manage.py run -h 0.0.0.0 --port=5005
-          #            - gunicorn -b 0.0.0.0:5005 backend.project:app
-          #          env:
-          #            - name: FLASK_APP
-          #              value: project/__init__.py
-          #            - name: FLASK_ENV
-          #              value: development
           env:
             - name: DB_HOST
               value: "postgres-db-postgresql.postgres-db.svc.cluster.local"
@@ -71,10 +63,6 @@ spec:
                   key: app-password
           ports:
             - containerPort: 5005
-          #          volumeMounts:
-          #            - name: firebase-creds
-          #              mountPath: /app/secrets
-          #              readOnly: true
           livenessProbe:
             httpGet:
               path: /
@@ -83,10 +71,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
-      #      volumes:
-      #        - name: firebase-creds
-      #          secret:
-      #            secretName: firebase-credentials
       imagePullSecrets:
         - name: regcred
 

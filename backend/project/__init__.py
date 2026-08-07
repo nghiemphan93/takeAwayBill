@@ -1,5 +1,9 @@
 import atexit
+import logging
 import os
+
+from pandas.core.frame import DataFrame
+from requests.exceptions import RequestException, Timeout
 
 os.environ['TZ'] = 'Europe/Berlin'
 from datetime import timedelta, datetime
@@ -14,6 +18,8 @@ from flask_apscheduler import APScheduler
 from flask_cors import cross_origin
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 # set configuration values
@@ -23,6 +29,7 @@ class Config:
 
 scheduler = APScheduler()
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 app.config.from_object(Config())
 scheduler.init_app(app)
@@ -40,6 +47,26 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{
 db = SQLAlchemy(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 migrate = Migrate(app, db)
+
+retry = Retry(
+    total=5,
+    connect=5,
+    read=5,
+    status=5,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=frozenset(["GET", "POST"]),
+    raise_on_status=False,
+)
+
+scraper = cloudscraper.create_scraper()
+adapter = HTTPAdapter(max_retries=retry)
+
+scraper.mount("http://", adapter)
+scraper.mount("https://", adapter)
+session = requests.Session()
+session.mount("http://", adapter)
+session.mount("https://", adapter)
 
 
 class Auth(db.Model):
@@ -141,30 +168,31 @@ class User:
 def get_new_tokens() -> Token:
     print("Getting new access token")
     auth = Auth.query.get(1)
-    print(auth.access_token, auth.refresh_token)
     token = Token(auth.access_token, auth.refresh_token)
 
-    scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
-    result = scraper.post(
-        "https://partner-hub.justeattakeaway.com/auth/realms/restaurant/protocol/openid-connect/token",
-        data={
-            'grant_type': 'refresh_token',
-            'client_id': 'restaurant-portal',
-            'refresh_token': token.refresh_token,
-        })
-    response: Dict = result.json()
-    if response.get('access_token') is not None and response.get('refresh_token') is not None:
-        auth.access_token = response.get('access_token')
-        auth.refresh_token = response.get('refresh_token')
-        db.session.commit()
-
-    return Token(response.get('access_token'), response.get('refresh_token'))
-
-
-# @scheduler.task("interval", id="do_update_refresh_token", hours=6)
-# @cross_origin()
-# def get_new_tokens_scheduler() -> Token:
-#     return get_new_tokens()
+    try:
+        scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
+        result = scraper.post(
+            "https://partner-hub.justeattakeaway.com/auth/realms/restaurant/protocol/openid-connect/token",
+            data={
+                'grant_type': 'refresh_token',
+                'client_id': 'restaurant-portal',
+                'refresh_token': token.refresh_token,
+            },
+            timeout=2
+        )
+        response: Dict = result.json()
+        if response.get('access_token') is not None and response.get('refresh_token') is not None:
+            auth.access_token = response.get('access_token')
+            auth.refresh_token = response.get('refresh_token')
+            db.session.commit()
+        return Token(response.get('access_token'), response.get('refresh_token'))
+    except (Timeout, RequestException, ValueError, AttributeError) as e:
+        logger.exception('Failed to fetch metadata')
+        return jsonify({"message": str(e), "errorType": "GET_METADATA_FAILED"}), 502
+    except Exception:
+        logger.exception("Unhandled error")
+        return jsonify({"message": "Internal server error"}), 500
 
 
 @app.route("/", methods=['GET'])
@@ -227,8 +255,11 @@ def update_refresh_token():
 def logout():
     accessToken = request.headers.get('accessToken')
     try:
-        requests.post("https://restaurant-portal-api.takeaway.com/api/logout",
-                      headers={"Authorization": f'Bearer {accessToken}'})
+        session.post(
+            url="https://restaurant-portal-api.takeaway.com/api/logout",
+            headers={"Authorization": f'Bearer {accessToken}'},
+            timeout=2
+        )
         return jsonify(message='logged out successfully'), 200
     except Exception:
         return jsonify(message='logged out unsuccessfully'), 500
@@ -252,13 +283,21 @@ def getOrdersByDate():
     tempDate = pd.to_datetime(tempDate, format='%Y-%m-%d')
     year = tempDate.date().year
 
-    print(dayOfYear)
-    result = requests.get(
-        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}',
-        headers={"Authorization": f'Bearer {access_token}'},
-        timeout=10
-    )
-    totalPages = result.json().get('meta').get('total_pages')
+    print(f'day of year {dayOfYear}')
+    totalPages = 0
+    try:
+        result = session.get(
+            f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}',
+            headers={"Authorization": f'Bearer {access_token}'},
+            timeout=2
+        )
+        totalPages = result.json().get('meta').get('total_pages')
+    except (Timeout, RequestException, ValueError, AttributeError) as e:
+        logger.exception('Failed to fetch metadata')
+        return jsonify({"message": str(e), "errorType": "GET_METADATA_FAILED"}), 502
+    except Exception:
+        logger.exception("Unhandled error")
+        return jsonify({"message": "Internal server error"}), 500
 
     # combine all dfs
     threads = []
@@ -268,9 +307,10 @@ def getOrdersByDate():
 
     dfs = []
     for thread in threads:
-        df = thread.join()
+        df: DataFrame = thread.join()
         if df is not None:
             dfs.append(df)
+
     if len(dfs) > 0:
         billsDf = pd.concat(dfs)
 
@@ -307,11 +347,17 @@ def getLiveOrders():
             scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
             result = scraper.get(
                 f'https://live-orders-api.takeaway.com/api/orders',
-                headers={"Authorization": f'Bearer {access_token}'})
+                headers={"Authorization": f'Bearer {access_token}'},
+                timeout=2
+            )
             isFailed = False
-        except Exception as e:
-            # except Exception as e:
+        except (Timeout, RequestException, ValueError, AttributeError) as e:
+            logger.exception('Failed to fetch metadata')
             print(f'failed {i} times')
+        except Exception:
+            logger.exception("Unhandled error")
+            print(f'failed {i} times')
+
         if not isFailed:
             for order in result.json():
                 order = {
@@ -374,7 +420,16 @@ class ThreadWithReturnValue(Thread):
 
 
 def createSingleDf(token: str, year: int, dayOfYear: int, page: int) -> pd.DataFrame:
-    result = requests.get(
-        f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}&page={page}',
-        headers={"Authorization": f'Bearer {token}'})
-    return pd.DataFrame(result.json().get('data').get('orders'))
+    try:
+        result = session.get(
+            f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}&page={page}',
+            headers={"Authorization": f'Bearer {token}'},
+            timeout=2
+        )
+        return pd.DataFrame(result.json().get('data').get('orders'))
+    except (Timeout, RequestException, ValueError, AttributeError) as e:
+        logger.exception("Failed page=%s", page)
+        return None
+    except Exception:
+        logger.exception("Unhandled error")
+        return None
