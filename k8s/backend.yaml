@@ -14,7 +14,7 @@ spec:
     spec:
       #      initContainers:
       #        - name: db-migration
-      #          image: docker.nghiemphan.de/admin/takeawaybill-backend:1  # Dùng chung Docker Image với App
+      #          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
       #          command: [ "flask", "db", "upgrade" ]
       #          env:
       #            - name: FLASK_APP
@@ -40,7 +40,7 @@ spec:
       #                  key: app-password
       containers:
         - name: takeawaybill
-          image: docker.nghiemphan.de/admin/takeawaybill-backend:1
+          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
           #          command:
           #            - python manage.py run -h 0.0.0.0 --port=5005
           #            - gunicorn -b 0.0.0.0:5005 backend.project:app
