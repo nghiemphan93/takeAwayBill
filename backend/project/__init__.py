@@ -47,12 +47,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{DB_USER}:{DB_PASSWORD}@{
 db = SQLAlchemy(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 migrate = Migrate(app, db)
-
+TIMEOUT = 1
 retry = Retry(
-    total=5,
-    connect=5,
-    read=5,
-    status=5,
+    total=10,
+    connect=10,
+    read=10,
+    status=10,
     backoff_factor=1,
     status_forcelist=[429, 500, 502, 503, 504],
     allowed_methods=frozenset(["GET", "POST"]),
@@ -179,7 +179,7 @@ def get_new_tokens() -> Token:
                 'client_id': 'restaurant-portal',
                 'refresh_token': token.refresh_token,
             },
-            timeout=2
+            timeout=TIMEOUT
         )
         response: Dict = result.json()
         if response.get('access_token') is not None and response.get('refresh_token') is not None:
@@ -258,7 +258,7 @@ def logout():
         session.post(
             url="https://restaurant-portal-api.takeaway.com/api/logout",
             headers={"Authorization": f'Bearer {accessToken}'},
-            timeout=2
+            timeout=TIMEOUT
         )
         return jsonify(message='logged out successfully'), 200
     except Exception:
@@ -289,7 +289,7 @@ def getOrdersByDate():
         result = session.get(
             f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}',
             headers={"Authorization": f'Bearer {access_token}'},
-            timeout=2
+            timeout=TIMEOUT
         )
         totalPages = result.json().get('meta').get('total_pages')
     except (Timeout, RequestException, ValueError, AttributeError) as e:
@@ -340,67 +340,59 @@ def getLiveOrders():
     access_token = request.headers.get('accessToken')
 
     orders: List[Order] = []
-    isFailed = True
+    try:
+        scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
+        result = scraper.get(
+            f'https://live-orders-api.takeaway.com/api/orders',
+            headers={"Authorization": f'Bearer {access_token}'},
+            timeout=TIMEOUT
+        )
 
-    for i in range(10):
-        try:
-            scraper = cloudscraper.create_scraper()  # returns a CloudScraper instance
-            result = scraper.get(
-                f'https://live-orders-api.takeaway.com/api/orders',
-                headers={"Authorization": f'Bearer {access_token}'},
-                timeout=2
-            )
-            isFailed = False
-        except (Timeout, RequestException, ValueError, AttributeError) as e:
-            logger.exception('Failed to fetch metadata')
-            print(f'failed {i} times')
-        except Exception:
-            logger.exception("Unhandled error")
-            print(f'failed {i} times')
-
-        if not isFailed:
-            for order in result.json():
-                order = {
-                    "placedDate": order.get('placed_date'),
-                    "requestedTime": order.get('requested_time'),
-                    "paymentType": order.get('payment_type'),
-                    "subtotal": order.get('subtotal'),
-                    "restaurantTotal": order.get('restaurant_total'),
-                    "customerTotal": order.get('customer_total'),
-                    "orderCode": order.get('public_reference'),
-                    "deliveryFree": order.get('delivery_fee'),
-                    "customer": {
-                        "fullName": order.get('customer').get('full_name'),
-                        "street": order.get('customer').get('street'),
-                        "streetNumber": order.get('customer').get('street_number'),
-                        "postcode": order.get('customer').get('postcode'),
-                        "city": order.get('customer').get('city'),
-                        "extra": order.get('customer').get('extra')[0] if len(
-                            order.get('customer').get('extra')) > 0 else '',
-                        "phoneNumber": order.get('customer').get('phone_number'),
-                    },
-                    "products": [{
-                        "quantity": product.get('quantity'),
-                        "name": product.get('name'),
-                        "totalAmount": product.get('total_amount'),
-                        "code": product.get('code'),
-                        "specifications": [
-                            {
-                                "name": specification.get("name"),
-                                "totalAmount": specification.get("total_amount")
-                            } for specification in product.get('specifications')
-                        ]
-                    } for product in order.get('products')],
-                    "status": order.get('status')
-                }
-                orders.append(order)
-            break
-    orders = sorted(orders, key=lambda order: order.get('placedDate'), reverse=True)
-
-    if isFailed:
-        return jsonify([]), 200
-    else:
+        for order in result.json():
+            order = {
+                "placedDate": order.get('placed_date'),
+                "requestedTime": order.get('requested_time'),
+                "paymentType": order.get('payment_type'),
+                "subtotal": order.get('subtotal'),
+                "restaurantTotal": order.get('restaurant_total'),
+                "customerTotal": order.get('customer_total'),
+                "orderCode": order.get('public_reference'),
+                "deliveryFree": order.get('delivery_fee'),
+                "customer": {
+                    "fullName": order.get('customer').get('full_name'),
+                    "street": order.get('customer').get('street'),
+                    "streetNumber": order.get('customer').get('street_number'),
+                    "postcode": order.get('customer').get('postcode'),
+                    "city": order.get('customer').get('city'),
+                    "extra": order.get('customer').get('extra')[0] if len(
+                        order.get('customer').get('extra')) > 0 else '',
+                    "phoneNumber": order.get('customer').get('phone_number'),
+                },
+                "products": [{
+                    "quantity": product.get('quantity'),
+                    "name": product.get('name'),
+                    "totalAmount": product.get('total_amount'),
+                    "code": product.get('code'),
+                    "specifications": [
+                        {
+                            "name": specification.get("name"),
+                            "totalAmount": specification.get("total_amount")
+                        } for specification in product.get('specifications')
+                    ]
+                } for product in order.get('products')],
+                "status": order.get('status')
+            }
+            orders.append(order)
+        print(f'got {len(orders)} live orders...')
+        orders = sorted(orders, key=lambda order: order.get('placedDate'), reverse=True)
         return jsonify(orders), 200
+
+    except (Timeout, RequestException, ValueError, AttributeError) as e:
+        logger.exception('Failed to fetch metadata')
+        return jsonify({"message": str(e), "errorType": "GET_METADATA_FAILED"}), 502
+    except Exception:
+        logger.exception("Unhandled error")
+        return jsonify({"message": "Internal server error"}), 500
 
 
 class ThreadWithReturnValue(Thread):
@@ -424,7 +416,7 @@ def createSingleDf(token: str, year: int, dayOfYear: int, page: int) -> pd.DataF
         result = session.get(
             f'https://restaurant-portal-api.takeaway.com/api/restaurant/orders?period_type=day&year={year}&number={dayOfYear}&page={page}',
             headers={"Authorization": f'Bearer {token}'},
-            timeout=2
+            timeout=TIMEOUT
         )
         return pd.DataFrame(result.json().get('data').get('orders'))
     except (Timeout, RequestException, ValueError, AttributeError) as e:
