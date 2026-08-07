@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
         - name: db-migration
-          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
+          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_094649
           command: [ "flask", "db", "upgrade" ]
           env:
             - name: FLASK_APP
@@ -40,7 +40,7 @@ spec:
                   key: app-password
       containers:
         - name: takeawaybill
-          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_093940
+          image: docker.nghiemphan.de/admin/takeawaybill-backend:20260807_094649
           env:
             - name: DB_HOST
               value: "postgres-db-postgresql.postgres-db.svc.cluster.local"
